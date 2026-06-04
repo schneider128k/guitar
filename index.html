@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guitar Trainer</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>🎸 Guitar Trainer</h1>
+      <p class="tagline">Learn the fretboard, major scales &amp; shapes — one quiz at a time.</p>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-view="find" aria-selected="true">Find Notes</button>
+      <button class="tab" data-view="name">Name the Note</button>
+      <button class="tab" data-view="open">Open-Position Scales</button>
+      <button class="tab" data-view="caged">CAGED Shapes</button>
+    </nav>
+
+    <main id="app"></main>
+
+    <footer class="site-footer">
+      <span>Prototype · click the fretboard to answer.</span>
+      <span class="future">🎤 Play-the-note (mic) mode coming soon.</span>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
