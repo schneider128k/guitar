@@ -3,26 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Guitar Trainer</title>
+    <title>Woodshed · Guitar Trainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
+    <div class="grain" aria-hidden="true"></div>
+
     <header class="site-header">
-      <h1>🎸 Guitar Trainer</h1>
-      <p class="tagline">Learn the fretboard, major scales &amp; shapes — one quiz at a time.</p>
+      <div class="wordmark">
+        <span class="mark">◗</span>
+        <span class="name">Woodshed</span>
+      </div>
+      <p class="tagline">Learn the fretboard — by heart.</p>
     </header>
 
-    <nav class="tabs" id="tabs">
-      <button class="tab" data-view="find" aria-selected="true">Find Notes</button>
-      <button class="tab" data-view="name">Name the Note</button>
-      <button class="tab" data-view="open">Open-Position Scales</button>
-      <button class="tab" data-view="caged">CAGED Shapes</button>
+    <nav class="segmented" id="tabs" role="tablist">
+      <button class="tab" data-view="find" role="tab" aria-selected="true">Find Notes</button>
+      <button class="tab" data-view="name" role="tab" aria-selected="false">Name the Note</button>
+      <button class="tab" data-view="open" role="tab" aria-selected="false">Open Scales</button>
+      <button class="tab" data-view="caged" role="tab" aria-selected="false">CAGED Shapes</button>
     </nav>
 
     <main id="app"></main>
 
     <footer class="site-footer">
-      <span>Prototype · click the fretboard to answer.</span>
-      <span class="future">🎤 Play-the-note (mic) mode coming soon.</span>
+      <span class="future">🎤 Play-the-note (mic) mode is coming soon.</span>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

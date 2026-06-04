@@ -3,3 +3,8 @@ dist
 *.log
 .DS_Store
 .vite
+
+# local dev/test tooling (not part of the app)
+smoke.mjs
+shot.mjs
+*.png
