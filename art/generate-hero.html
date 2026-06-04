@@ -2,142 +2,188 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <style>
-      body { margin: 0; background: #222; }
-      canvas { image-rendering: pixelated; display: block; }
-    </style>
+    <style>body { margin: 0; background: #222; } canvas { image-rendering: pixelated; display: block; }</style>
   </head>
   <body>
     <canvas id="c" width="1280" height="640"></canvas>
     <script>
-      const SCALE = 8, W = 160, H = 80;
+      const SCALE = 5, W = 256, H = 128;
       const ctx = document.getElementById('c').getContext('2d');
       ctx.imageSmoothingEnabled = false;
       let seed = 20240601;
       const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
-      const px = (x, y, color) => { ctx.fillStyle = color; ctx.fillRect(Math.round(x) * SCALE, Math.round(y) * SCALE, SCALE, SCALE); };
-      const rect = (x, y, w, h, color) => { ctx.fillStyle = color; ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE); };
-      const disc = (cx, cy, r, color) => {
-        for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r) px(cx + x, cy + y, color);
-      };
-      function sprite(map, legend, ox, oy, flip = false) {
-        for (let r = 0; r < map.length; r++)
-          for (let c = 0; c < map[r].length; c++) {
-            const col = legend[map[r][c]];
-            if (!col) continue;
-            px((flip ? ox + (map[r].length - 1 - c) : ox + c), oy + r, col);
-          }
+      const px = (x, y, col) => { if (!col) return; ctx.fillStyle = col; ctx.fillRect(Math.round(x) * SCALE, Math.round(y) * SCALE, SCALE, SCALE); };
+      const rect = (x, y, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE); };
+      const disc = (cx, cy, r, col) => { for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r) px(cx + x, cy + y, col); };
+      const ellipse = (cx, cy, rx, ry, col) => { for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) px(cx + x, cy + y, col); };
+      const oEllipse = (cx, cy, rx, ry, col, out) => { ellipse(cx, cy, rx + 1, ry + 1, out); ellipse(cx, cy, rx, ry, col); };
+      function fillPoly(pts, col) {
+        const ys = pts.map((p) => p[1]); let minY = Math.floor(Math.min(...ys)), maxY = Math.ceil(Math.max(...ys));
+        for (let y = minY; y <= maxY; y++) {
+          const xs = [];
+          for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; if ((y1 <= y && y2 > y) || (y2 <= y && y1 > y)) xs.push(x1 + ((y - y1) / (y2 - y1)) * (x2 - x1)); }
+          xs.sort((a, b) => a - b);
+          for (let k = 0; k + 1 < xs.length; k += 2) for (let x = Math.round(xs[k]); x <= Math.round(xs[k + 1]); x++) px(x, y, col);
+        }
+      }
+      // thick capsule limb from (x1,y1)-(x2,y2)
+      function limb(x1, y1, x2, y2, r, col, out) {
+        const steps = Math.ceil(Math.hypot(x2 - x1, y2 - y1));
+        for (let i = 0; i <= steps; i++) { const t = i / steps; disc(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, r + 1, out); }
+        for (let i = 0; i <= steps; i++) { const t = i / steps; disc(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, r, col); }
       }
 
-      // ---------------- background ----------------
+      // ===================== BACKGROUND =====================
       rect(0, 0, W, H, '#07090c');
       const leaf = ['#1c5a22', '#2c7a2e', '#3f9b3a', '#15401a'];
       for (let x = 0; x < W; x++) {
-        const depth = 6 + Math.floor(rnd() * 7) + (x % 9 === 0 ? 4 : 0);
+        const depth = 10 + Math.floor(rnd() * 12) + (x % 11 === 0 ? 7 : 0);
         for (let y = 0; y < depth; y++) if (rnd() < 0.82) px(x, y, leaf[Math.floor(rnd() * leaf.length)]);
-        if (rnd() < 0.1) { const len = depth + 3 + Math.floor(rnd() * 10); for (let y = depth; y < len; y++) if (rnd() < 0.7) px(x, y, leaf[Math.floor(rnd() * 2)]); }
+        if (rnd() < 0.09) { const len = depth + 4 + Math.floor(rnd() * 16); for (let y = depth; y < len; y++) if (rnd() < 0.7) px(x, y, leaf[Math.floor(rnd() * 2)]); }
       }
-      // mossy wall on the right
-      for (let x = 140; x < W; x++)
-        for (let y = 8; y < 57; y++) {
-          let col = (x + y) % 7 < 4 ? '#5f6566' : '#73797a';
-          if (rnd() < 0.22) col = rnd() < 0.5 ? '#2c7a2e' : '#1c5a22';
-          if (x % 6 === 0 || y % 5 === 0) col = '#3c4042';
-          px(x, y, col);
-        }
-
-      // ---------------- fretboard floor ----------------
-      const TOP = 57;
-      rect(0, TOP, W, H - TOP, '#2c2925');             // neck wood
-      rect(0, TOP, W, 1, '#413b34');                    // top edge
-      rect(0, H - 2, W, 2, '#1b1916');                  // bottom edge
-      rect(4, TOP, 3, H - TOP, '#ece5d6');              // nut (left)
+      const TOP = 92;
+      for (let x = 222; x < W; x++) for (let y = 14; y < TOP; y++) {
+        let col = (x + y) % 8 < 5 ? '#5f6566' : '#73797a';
+        if (rnd() < 0.2) col = rnd() < 0.5 ? '#2c7a2e' : '#1c5a22';
+        if (x % 9 === 0 || y % 8 === 0) col = '#3c4042';
+        px(x, y, col);
+      }
+      // fretboard floor
+      rect(0, TOP, W, H - TOP, '#2c2925');
+      rect(0, TOP, W, 1, '#46403a');
+      rect(0, H - 3, W, 3, '#1b1916');
+      rect(6, TOP, 4, H - TOP, '#ece5d6');
       const frets = [];
-      for (let fx = 22; fx < W; fx += 19) { rect(fx, TOP, 1, H - TOP, '#5a554d'); frets.push(fx); }
-      for (let i = 0; i < 6; i++) { const sy = TOP + 3 + i * 3; rect(7, sy, W - 7, 1, '#b7b1a3'); } // strings
-      // inlay dots (center line)
-      [1, 2, 3, 5].forEach((k) => { const mx = (frets[k] + frets[k - 1]) / 2; px(mx, 68, '#6a655d'); });
+      for (let fx = 34; fx < W; fx += 30) { rect(fx, TOP, 1, H - TOP, '#5a554d'); frets.push(fx); }
+      for (let i = 0; i < 6; i++) rect(11, TOP + 4 + i * 5, W - 11, 1, '#b7b1a3');
+      [1, 2, 4].forEach((k) => disc((frets[k] + frets[k - 1]) / 2, 108, 2, '#6a655d'));
+      // amber root "C" under the goblin
+      disc(196, 110, 9, '#bd7517'); disc(196, 110, 7, '#e0922f');
+      ['.CCC', 'C...', 'C...', 'C...', '.CCC'].forEach((row, r) => [...row].forEach((ch, c) => { if (ch === 'C') px(193 + c, 106 + r, '#3a2410'); }));
+      // ground shadows
+      ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(20 * SCALE, 95 * SCALE, 44 * SCALE, 3 * SCALE); ctx.fillRect(160 * SCALE, 95 * SCALE, 66 * SCALE, 3 * SCALE);
+      // floating notes
+      const eighth = (x, y, col) => { disc(x, y, 1.6, col); rect(x + 1, y - 6, 1, 6, col); rect(x + 1, y - 6, 3, 1, col); };
+      eighth(84, 30, '#cfc7b4'); eighth(132, 22, '#cfc7b4'); eighth(150, 40, '#9fb0c0');
 
-      // soft shadows
-      const shadow = (cx, w) => { ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect((cx - w / 2) * SCALE, 60 * SCALE, w * SCALE, 2 * SCALE); };
-      shadow(22, 16); shadow(125, 26);
+      // ===================== GOBLIN (white-and-orange ogre, facing left) =====================
+      (function goblin() {
+        const cx = 184, OUT = '#160a06', or = '#ef7e2b', orD = '#a8501a', orL = '#ffb064', belly = '#efe7d2', bellyD = '#cfbf9a', claw = '#fff6e6', horn = '#e8d9b6', hornD = '#b09866';
+        // back arm (raised, behind body)
+        limb(cx + 14, 50, cx + 30, 34, 5, orD, OUT);
+        disc(cx + 31, 33, 6, orD); // fist
+        [[-1, -7], [2, -7], [5, -6]].forEach(([dx, dy]) => fillPoly([[cx + 31 + dx, 33 + dy], [cx + 31 + dx + 2, 33 + dy + 1], [cx + 31 + dx, 33 + dy + 4]], claw));
+        // legs
+        limb(cx - 10, 74, cx - 12, 92, 7, or, OUT);
+        limb(cx + 10, 74, cx + 12, 92, 7, or, OUT);
+        // feet + toe claws
+        oEllipse(cx - 13, 92, 9, 4, orD, OUT); oEllipse(cx + 11, 92, 9, 4, orD, OUT);
+        [-20, -15, -10, 6, 11, 16].forEach((dx) => fillPoly([[cx + dx, 90], [cx + dx + 3, 90], [cx + dx + 1, 95]], claw));
+        // torso (broad, hunched)
+        oEllipse(cx, 58, 24, 22, or, OUT);
+        ellipse(cx - 8, 46, 12, 9, orL); // upper-left highlight
+        ellipse(cx + 6, 70, 14, 14, belly); ellipse(cx + 9, 74, 9, 9, bellyD); // pot belly
+        // shoulders
+        oEllipse(cx - 22, 44, 10, 9, or, OUT); oEllipse(cx + 22, 44, 10, 9, or, OUT);
+        ellipse(cx - 24, 41, 5, 4, orL);
+        // front arm reaching toward the guitar (down-left)
+        limb(cx - 20, 48, cx - 34, 64, 6, or, OUT);
+        disc(cx - 35, 65, 7, or); disc(cx - 37, 63, 3, orL);
+        [[-6, -2], [-7, 2], [-5, 6]].forEach(([dx, dy]) => fillPoly([[cx - 35 + dx, 65 + dy], [cx - 35 + dx - 4, 65 + dy + 1], [cx - 35 + dx, 65 + dy + 3]], claw));
+        // head
+        oEllipse(cx, 30, 17, 15, or, OUT);
+        ellipse(cx - 6, 24, 8, 6, orL);
+        // ears
+        fillPoly([[cx - 17, 28], [cx - 24, 22], [cx - 16, 34]], or); fillPoly([[cx + 17, 28], [cx + 24, 22], [cx + 16, 34]], or);
+        // horns
+        fillPoly([[cx - 10, 18], [cx - 16, 2], [cx - 5, 16]], hornD); fillPoly([[cx - 10, 18], [cx - 14, 3], [cx - 6, 16]], horn);
+        fillPoly([[cx + 10, 18], [cx + 16, 2], [cx + 5, 16]], hornD); fillPoly([[cx + 10, 18], [cx + 14, 3], [cx + 6, 16]], horn);
+        // heavy brow
+        fillPoly([[cx - 15, 28], [cx + 15, 28], [cx + 13, 33], [cx - 13, 33]], orD);
+        // eyes (angry, glowing)
+        oEllipse(cx - 8, 31, 4, 3, '#fff7e6', OUT); oEllipse(cx + 8, 31, 4, 3, '#fff7e6', OUT);
+        disc(cx - 7, 31, 2, '#e23b2f'); disc(cx + 9, 31, 2, '#e23b2f'); px(cx - 7, 30, '#ffd24a'); px(cx + 9, 30, '#ffd24a');
+        // snarling mouth with fangs
+        fillPoly([[cx - 11, 38], [cx + 11, 38], [cx + 8, 44], [cx - 8, 44]], '#3a0a06');
+        [-9, -5, 4, 8].forEach((dx) => fillPoly([[cx + dx, 38], [cx + dx + 3, 38], [cx + dx + 1, 43]], '#fff6e6')); // upper fangs
+        [-6, 1, 6].forEach((dx) => fillPoly([[cx + dx, 44], [cx + dx + 3, 44], [cx + dx + 1, 40]], '#fff6e6')); // lower fangs
+        // "C" rune on belly
+        ['.CC', 'C..', 'C..', '.CC'].forEach((row, r) => [...row].forEach((ch, c) => { if (ch === 'C') px(cx + 6 + c, 68 + r, '#bd7517'); }));
+      })();
 
-      // amber root note "C" on the fret the goblin stands on
-      disc(125, 69, 6, '#bd7517');
-      disc(125, 69, 5, '#e0922f');
-      ['.CC', 'C..', 'C..', '.CC'].forEach((row, r) =>
-        [...row].forEach((ch, c) => { if (ch === 'C') px(123 + c, 67 + r, '#3a2410'); }),
-      );
+      // ===================== KNIGHT (Arthur), shredding an electric guitar =====================
+      (function knight() {
+        const cx = 42, OUT = '#0a0a14', steel = '#3a63d8', steelD = '#16306f', steelL = '#9fb8ff', silver = '#d2dcef', skin = '#eeba86', plume = '#e23b2f', plumeL = '#ff7b6b';
+        // cape trailing back-left
+        fillPoly([[cx - 4, 50], [cx - 2, 80], [cx - 22, 88], [cx - 8, 56]], steelD);
+        fillPoly([[cx - 4, 52], [cx - 3, 74], [cx - 14, 80]], steel);
+        // planted legs (wide rock stance)
+        limb(cx - 3, 74, cx - 13, 92, 5, steel, OUT); limb(cx + 5, 74, cx + 13, 92, 5, steel, OUT);
+        oEllipse(cx - 14, 92, 6, 3, '#2a2f3a', OUT); oEllipse(cx + 14, 92, 6, 3, '#2a2f3a', OUT);
+        // torso / breastplate
+        oEllipse(cx + 1, 60, 11, 14, steel, OUT);
+        ellipse(cx - 3, 54, 5, 8, steelL); rect(cx, 50, 1, 20, silver);
+        rect(cx - 8, 70, 18, 2, silver);
+        // shoulders
+        oEllipse(cx - 9, 50, 6, 6, steel, OUT); oEllipse(cx + 10, 49, 6, 6, steel, OUT); ellipse(cx + 9, 47, 3, 3, steelL);
+        // both arms forward, holding the guitar (hands drawn in axe())
+        limb(cx + 10, 51, 60, 70, 4, steel, OUT);  // strumming arm to body
+        limb(cx + 7, 52, 74, 56, 3.5, steelD, OUT); // fretting arm up the neck
+        // helmet
+        oEllipse(cx, 40, 9, 10, silver, OUT);
+        fillPoly([[cx - 9, 40], [cx - 14, 45], [cx - 9, 47]], steel);
+        rect(cx - 6, 39, 11, 3, '#0a0a14'); rect(cx - 5, 40, 9, 1, '#7ad7ff'); // visor with electric-blue glow
+        rect(cx - 7, 33, 14, 1, silver);
+        // flame-like plume
+        fillPoly([[cx - 2, 32], [cx + 3, 32], [cx + 8, 20], [cx + 3, 28], [cx + 6, 17], [cx, 27]], plume);
+        fillPoly([[cx, 31], [cx + 2, 31], [cx + 4, 24]], plumeL);
+      })();
 
-      // ---------------- floating notes ----------------
-      const note = (x, y) => { ctx.fillStyle = '#cfc7b4'; px(x, y, '#cfc7b4'); px(x + 1, y, '#cfc7b4'); px(x + 1, y - 1, '#cfc7b4'); px(x + 1, y - 2, '#cfc7b4'); px(x + 2, y - 2, '#cfc7b4'); };
-      note(54, 18); note(88, 12); note(108, 22);
+      // ===================== ELECTRIC GUITAR (held, neck up-right) =====================
+      (function axe() {
+        const OUT = '#0a0a0a', red = '#e22b2f', redD = '#7d1419', redL = '#ff8a78', wood = '#241a12', steel = '#cdd2da', gold = '#e8b34a', skin = '#eeba86';
+        // neck from body up to headstock
+        limb(61, 70, 82, 47, 3, OUT); limb(61, 70, 82, 47, 2, wood);
+        for (let i = 0; i < 7; i++) px(64 + i * 2.6, 67 - i * 2.9, steel); // frets along neck
+        // flying-V body near the strumming hand
+        const bx = 58, by = 72;
+        const body = [[bx + 6, by - 10], [bx + 12, by - 2], [bx + 4, by + 8], [bx - 1, by + 1], [bx - 9, by + 9], [bx - 3, by - 7]];
+        fillPoly(body.map(([x, y]) => [x, y + 1]), OUT); fillPoly(body, red);
+        fillPoly([[bx + 5, by - 8], [bx + 9, by - 2], [bx + 3, by - 2]], redL);
+        fillPoly([[bx - 7, by + 7], [bx - 1, by + 1], [bx - 3, by + 5]], redD);
+        rect(bx, by - 3, 5, 2, '#2a2f3a'); rect(bx + 1, by + 1, 4, 1, gold); // pickup + bridge
+        // headstock + tuners
+        fillPoly([[80, 49], [88, 42], [85, 47], [83, 45]], OUT); fillPoly([[81, 48], [87, 43], [84, 47]], '#3a2a18');
+        disc(84, 44, 1, gold); disc(86, 45, 1, gold);
+        // hands gripping
+        disc(60, 70, 3, skin); disc(60, 70, 2, '#d89a66');  // strum hand
+        disc(74, 56, 3, skin); disc(74, 56, 2, '#d89a66');  // fret hand
+      })();
 
-      // ---------------- sprites ----------------
-      const KNIGHT = [
-        '......ww........', '.....wwww.......', '....KKKKKK......',
-        '...KhhhhhhK.....', '...KhhhhhhK.....', '...KhsssshK.....',
-        '...KKssssKK.....', '....KbbbbK......', '...KbbbbbbK..K..',
-        '..KbbbbbbbKKKbK.', '..KdbbbbbbbbbbbK', '..KdbbbbbbbKKKK.',
-        '..KddbbbbbbK....', '..KddbbbbbK.....', '...KbbbbbbK.....',
-        '...KbbKKbbK.....', '..KbbK..KbbK....', '..KbK....KbK....',
-        '.KbbK....KbbK...', '.KttK....KttK...', '.KttK....KttK...',
-        '.KKK......KKK...',
-      ];
-      const knightLegend = { K: '#0a0a14', b: '#2f5bd0', d: '#16306f', h: '#86a6ff', s: '#eeba86', w: '#ffffff', t: '#33383f' };
+      // ===================== LIGHTNING POWER-CHORD ZAP =====================
+      (function zap() {
+        const path = [[86, 43], [98, 50], [110, 41], [122, 52], [134, 43], [146, 54], [156, 50]];
+        const seg = (p, r, col) => { for (let i = 0; i < p.length - 1; i++) limb(p[i][0], p[i][1], p[i + 1][0], p[i + 1][1], r, col); };
+        seg(path, 3, '#1f6fd0');   // outer glow
+        seg(path, 2, '#7ad7ff');   // mid
+        seg(path, 1, '#ffffff');   // hot core
+        // forks
+        seg([[110, 41], [116, 33], [121, 36]], 1, '#7ad7ff');
+        seg([[134, 43], [138, 34], [144, 37]], 1, '#7ad7ff');
+        seg([[122, 52], [126, 60], [132, 60]], 1, '#7ad7ff');
+        // muzzle flash at the headstock + sparks
+        disc(86, 43, 3, '#ffffff'); disc(86, 43, 5, '#7ad7ff'); disc(86, 43, 3, '#fff');
+        // impact burst on the goblin
+        const ix = 158, iy = 50;
+        for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, len = i % 2 ? 11 : 6; fillPoly([[ix, iy], [ix + Math.cos(a) * len, iy + Math.sin(a) * len], [ix + Math.cos(a + 0.3) * len * 0.55, iy + Math.sin(a + 0.3) * len * 0.55]], i % 2 ? '#7ad7ff' : '#ffffff'); }
+        disc(ix, iy, 3, '#ffffff');
+        // crackle arcs around the goblin
+        seg([[160, 40], [166, 36], [170, 42]], 1, '#7ad7ff');
+        seg([[162, 66], [168, 70], [174, 66]], 1, '#7ad7ff');
+        seg([[176, 30], [182, 26], [186, 32]], 1, '#bfe9ff');
+      })();
 
-      // flying-V guitar thrown like a dagger, headstock leading (to the right)
-      const GUITAR = [
-        'RRK...........................',
-        'RrRK..........................',
-        '.RrRK.........................',
-        '..RrRK........................',
-        '...RrrRK......................',
-        '....RrrRKnnnnnnnnnnnnnK........',
-        '.....RrhRmKffffffffffKKttK....',
-        '.....RrrRmKffffffffffKttttttt.',
-        '....RrrRKnnnnnnnnnnnnnKKttK....',
-        '...RrrRK......................',
-        '..RrRK........................',
-        '.RrRK.........................',
-        'RrRK..........................',
-        'RRK...........................',
-      ];
-      const guitarLegend = { K: '#0a0a0a', R: '#7d1419', r: '#e22b2f', h: '#ff8a78', n: '#1d2128', f: '#cdd2da', m: '#9aa0aa', t: '#d9dee6' };
-
-      const GOBLIN = [
-        '....K........K..........', '...KGK......KGK.........', '...KGK......KGK.........',
-        '...KGGKKKKKKGGK.........', '..KGGGGGGGGGGGGK........', '.KGGGGGGGGGGGGGGK.......',
-        '.KGGeeGGGGGGeeGGK.......', '.KGGeKGGGGGGKeGGK.......', '.KGGGGGGGGGGGGGGK.......',
-        '.KGGGggggggggGGGK.......', '.KGGgTGggggGTgGGK.......', '.KGGGgggmmgggGGGK.......',
-        '..KGGGGGmmGGGGGGK.......', 'KKKGGGGGGGGGGGGGKKK.....', 'KWWKGGGGGGGGGGGGKWWK....',
-        'KWWKKGGGGGGGGGGKKWWKKK..', '.KKKLGGGGGGGGGGLKKKGGGK.', '...KLGGGGGGGGGGLK..KGGGK',
-        '...KGGGGGGGGGGGGK..KKKK.', '...KGGGG.CCC.GGGGK......', '...KGGGGC...GGGGK.......',
-        '...KGGGGC...GGGGK.......', '...KGGGG.CCC.GGGGK......', '...KGGKGGGGGGGGKGGK.....',
-        '...KGGK.KKKKKK.KGGK.....', '..KGGK........KGGK......', '..KGGK........KGGK......',
-        '..KGGK........KGGK......', '.KGGGK........KGGGK.....', '.KKKKK........KKKKK.....',
-      ];
-      const goblinLegend = { K: '#160a06', G: '#ee7a2d', g: '#b1521a', L: '#ffa860', W: '#f2ecdd', e: '#ffffff', T: '#fff4e0', m: '#5a1f10', C: '#fff1cf' };
-
-      // motion trail from the knight to the guitar
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      for (let i = 0; i < 6; i++) ctx.fillRect((36 + i * 8) * SCALE, (46 + (i % 2)) * SCALE, 4 * SCALE, SCALE);
-
-      sprite(GOBLIN, goblinLegend, 113, 28);
-      sprite(GUITAR, guitarLegend, 90, 40);
-      sprite(KNIGHT, knightLegend, 12, 37);
-
-      // impact starburst where the headstock meets the goblin
-      const star = (cx, cy) => {
-        ctx.fillStyle = '#fff3c4';
-        [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3], [2, 2], [-2, -2], [2, -2], [-2, 2]].forEach(([dx, dy]) => px(cx + dx, cy + dy, '#fff3c4'));
-        ctx.fillStyle = '#ffd24a';
-        [[1, 0], [-1, 0], [0, 1], [0, -1], [4, 1], [-4, -1], [1, 4], [-1, -4]].forEach(([dx, dy]) => px(cx + dx, cy + dy, '#ffd24a'));
-      };
-      star(116, 47);
-
-      ctx.strokeStyle = '#000'; ctx.lineWidth = SCALE;
-      ctx.strokeRect(SCALE / 2, SCALE / 2, 1280 - SCALE, 640 - SCALE);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = SCALE; ctx.strokeRect(SCALE / 2, SCALE / 2, 1280 - SCALE, 640 - SCALE);
       window.__done = true;
     </script>
   </body>
