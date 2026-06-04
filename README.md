@@ -1,9 +1,12 @@
-# 🎸 Guitar Trainer
+# ⚔️ Fretslayer
+
+> *Slay the fretboard.* A Ghosts 'n Goblins–inspired guitar trainer where the
+> knight blasts a lightning power chord to break the C-note goblin's curse.
 
 ![The Goblin Has Cursed the Fretboard — a knight blasts a lightning power chord from his electric guitar at the goblin; restore the notes](art/hero.jpg)
 
-An interactive web app for learning the guitar fretboard, major scales, and
-movable CAGED shapes. Built with [Vite](https://vitejs.dev/), a custom SVG
+Fretslayer is an interactive web app for learning the guitar fretboard, major
+scales, and movable CAGED shapes. Built with [Vite](https://vitejs.dev/), a custom SVG
 fretboard (music theory via [fretboard.js](https://github.com/moonwave99/fretboard.js)),
 and [VexFlow](https://www.vexflow.com/) for standard notation + TAB.
 
@@ -20,8 +23,9 @@ and [VexFlow](https://www.vexflow.com/) for standard notation + TAB.
 | **Open-Position Scales** | Browse the five first-position major scales (C, G, D, A, E) as fretboard + notation + TAB. |
 | **CAGED Shapes** | Explore the 5 movable major-scale shapes in any key; toggle note names / scale degrees. |
 
-Also: **selectable neck skins** (Studio / Acoustic / Electric / Metal, remembered
-across visits) and a **rotating guitarist quote** on each load.
+Also: a **"powering up" splash screen** with the key art and a random battle cry
+on each load, **selectable neck skins** (Studio / Acoustic / Electric / Metal,
+remembered across visits), and a **rotating guitarist quote** on each load.
 
 ## Roadmap ideas
 

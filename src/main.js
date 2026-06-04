@@ -70,6 +70,20 @@ applySkin(savedSkin);
 // Splash: show the key art for a few seconds, then reveal the app (click skips).
 const splash = document.getElementById('splash');
 if (splash) {
+  // A random battle cry on each load — keeps the Ghosts 'n Goblins vibe fresh.
+  const SPLASH_PHRASES = [
+    '⚡ Summoning the riff…',
+    '⚔️ Sharpening the note…',
+    '🎸 Tuning up for battle…',
+    '🔥 Charging the power chord…',
+    '👻 Banishing the C-note goblin…',
+    '🛡️ Restoring the cursed fretboard…',
+    '⚡ Stringing up the flying-V…',
+    '🤘 Loading the shred…',
+  ];
+  const msg = splash.querySelector('.splash-msg');
+  if (msg) msg.textContent = SPLASH_PHRASES[Math.floor(Math.random() * SPLASH_PHRASES.length)];
+
   const dismiss = () => splash.classList.add('hide');
   const timer = setTimeout(dismiss, 3200);
   splash.addEventListener('click', () => { clearTimeout(timer); dismiss(); });
