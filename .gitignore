@@ -9,4 +9,3 @@ smoke.mjs
 shot.mjs
 art/render-hero.mjs
 *.png
-!art/hero.png

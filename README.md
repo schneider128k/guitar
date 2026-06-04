@@ -1,6 +1,6 @@
 # 🎸 Guitar Trainer
 
-![The knight hurls a flying-V guitar like a dagger to impale the C-note goblin on a giant fretboard](art/hero.png)
+![The Goblin Has Cursed the Fretboard — a knight blasts a lightning power chord from his electric guitar at the goblin; restore the notes](art/hero.jpg)
 
 An interactive web app for learning the guitar fretboard, major scales, and
 movable CAGED shapes. Built with [Vite](https://vitejs.dev/), a custom SVG
