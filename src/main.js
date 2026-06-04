@@ -41,3 +41,24 @@ activate('find');
 const q = randomQuote();
 document.getElementById('epigraph').innerHTML =
   `<blockquote>“${q.text}”</blockquote><figcaption>— ${q.who}</figcaption>`;
+
+// Neck skin — applied globally via a body class, remembered across visits.
+const SKINS = ['studio', 'acoustic', 'electric', 'metal'];
+const skinButtons = [...document.querySelectorAll('.skin')];
+
+function applySkin(skin) {
+  if (!SKINS.includes(skin)) skin = 'studio';
+  SKINS.forEach((s) => document.body.classList.toggle(`skin-${s}`, s === skin));
+  skinButtons.forEach((b) => b.classList.toggle('active', b.dataset.skin === skin));
+  try {
+    localStorage.setItem('neckSkin', skin);
+  } catch {}
+}
+
+skinButtons.forEach((b) => b.addEventListener('click', () => applySkin(b.dataset.skin)));
+
+let savedSkin = 'studio';
+try {
+  savedSkin = localStorage.getItem('neckSkin') || 'studio';
+} catch {}
+applySkin(savedSkin);

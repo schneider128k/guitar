@@ -12,10 +12,14 @@
   --ink-soft: #756e62;
   --ink-faint: #a59d8e;
 
+  /* Neck skin (defaults = "Studio"). Overridden by body.skin-* below. */
   --neck: #2c2925;
   --neck-edge: #1b1916;
   --string: #cfc7b6;
   --bone: #ece5d6;
+  --fret: #67615a;
+  --inlay: rgba(255, 255, 255, 0.16);
+  --dot-default: #565049;
 
   --amber: #e0922f;
   --amber-deep: #bd7517;
@@ -65,6 +69,36 @@ body {
 }
 
 body > *:not(.grain) { position: relative; z-index: 1; }
+
+/* ---- Neck skins -----------------------------------------------------------*/
+/* Studio = the :root defaults. */
+body.skin-acoustic {
+  --neck: #5b3a23;
+  --neck-edge: #3a2414;
+  --bone: #efe7d6;
+  --fret: #c0a06a;
+  --string: #ddc593;
+  --inlay: rgba(255, 246, 226, 0.55);
+  --dot-default: #6f5235;
+}
+body.skin-electric {
+  --neck: #c89a57;
+  --neck-edge: #9a7233;
+  --bone: #efe9dd;
+  --fret: #d9dde2;
+  --string: #e6e1d4;
+  --inlay: #2a2013;
+  --dot-default: #7a5d33;
+}
+body.skin-metal {
+  --neck: #161514;
+  --neck-edge: #000000;
+  --bone: #3b3b3e;
+  --fret: #e2e6eb;
+  --string: #c3c8ce;
+  --inlay: #d4382f;
+  --dot-default: #6a655e;
+}
 
 /* ---- Header ---------------------------------------------------------------*/
 .site-header {
@@ -155,6 +189,56 @@ body > *:not(.grain) { position: relative; z-index: 1; }
   box-shadow: var(--shadow-sm), 0 2px 8px rgba(40, 30, 12, 0.08);
 }
 .tab:active { transform: scale(0.97); }
+
+/* ---- Skin selector --------------------------------------------------------*/
+.skins {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1.1rem auto 0;
+}
+.skins-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-right: 0.2rem;
+}
+.skin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 0.32rem 0.7rem 0.32rem 0.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.skin i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+.skin[data-skin='studio'] i { background: #2c2925; }
+.skin[data-skin='acoustic'] i { background: #5b3a23; }
+.skin[data-skin='electric'] i { background: #c89a57; }
+.skin[data-skin='metal'] i { background: #161514; }
+.skin:hover { color: var(--ink); border-color: var(--ink-faint); }
+.skin:active { transform: scale(0.96); }
+.skin.active {
+  color: var(--ink);
+  border-color: var(--amber);
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
 
 /* ---- Layout ---------------------------------------------------------------*/
 #app { padding: 1.5rem 1.25rem 2rem; }
@@ -382,11 +466,11 @@ button.ghost:active { transform: scale(0.98); }
    FRETBOARD SVG
    ========================================================================= */
 .fb { width: 100%; height: auto; display: block; touch-action: manipulation; }
-.fb-board { fill: var(--neck); stroke: var(--neck-edge); stroke-width: 1; }
-.fb-nut { fill: var(--bone); }
-.fb-fret { stroke: #67615a; stroke-width: 2.5; stroke-linecap: round; }
-.fb-string { stroke: var(--string); }
-.fb-inlay { fill: rgba(255, 255, 255, 0.16); }
+.fb-board { fill: var(--neck); stroke: var(--neck-edge); stroke-width: 1; transition: fill 0.3s, stroke 0.3s; }
+.fb-nut { fill: var(--bone); transition: fill 0.3s; }
+.fb-fret { stroke: var(--fret); stroke-width: 2.5; stroke-linecap: round; transition: stroke 0.3s; }
+.fb-string { stroke: var(--string); transition: stroke 0.3s; }
+.fb-inlay { fill: var(--inlay); transition: fill 0.3s; }
 .fb-fretnum { fill: #3d372f; font-family: var(--font-ui); font-weight: 700; font-size: 14px; text-anchor: middle; }
 .fb-tuning { fill: #3d372f; font-family: var(--font-ui); font-weight: 700; font-size: 14px; text-anchor: middle; }
 
@@ -404,7 +488,7 @@ button.ghost:active { transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
 .fb-dot { stroke: rgba(0, 0, 0, 0.18); stroke-width: 1.5; }
-.fb-dot.is-default { fill: #4c4842; }
+.fb-dot.is-default { fill: var(--dot-default); stroke: rgba(255, 255, 255, 0.28); }
 .fb-dot.is-root,
 .fb-dot.is-found { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-wrong { fill: var(--red); stroke: #a8362a; animation: shake 0.32s; }
