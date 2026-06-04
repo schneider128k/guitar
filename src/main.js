@@ -66,3 +66,11 @@ try {
   savedSkin = localStorage.getItem('neckSkin') || 'studio';
 } catch {}
 applySkin(savedSkin);
+
+// Splash: show the key art for a few seconds, then reveal the app (click skips).
+const splash = document.getElementById('splash');
+if (splash) {
+  const dismiss = () => splash.classList.add('hide');
+  const timer = setTimeout(dismiss, 3200);
+  splash.addEventListener('click', () => { clearTimeout(timer); dismiss(); });
+}
