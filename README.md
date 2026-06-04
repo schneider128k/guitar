@@ -1,5 +1,7 @@
 # 🎸 Guitar Trainer
 
+![The knight hurls a flying-V guitar like a dagger to impale the C-note goblin on a giant fretboard](art/hero.png)
+
 An interactive web app for learning the guitar fretboard, major scales, and
 movable CAGED shapes. Built with [Vite](https://vitejs.dev/), a custom SVG
 fretboard (music theory via [fretboard.js](https://github.com/moonwave99/fretboard.js)),

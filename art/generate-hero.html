@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { margin: 0; background: #222; }
+      canvas { image-rendering: pixelated; display: block; }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="1280" height="640"></canvas>
+    <script>
+      const SCALE = 8, W = 160, H = 80;
+      const ctx = document.getElementById('c').getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      let seed = 20240601;
+      const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+      const px = (x, y, color) => { ctx.fillStyle = color; ctx.fillRect(Math.round(x) * SCALE, Math.round(y) * SCALE, SCALE, SCALE); };
+      const rect = (x, y, w, h, color) => { ctx.fillStyle = color; ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE); };
+      const disc = (cx, cy, r, color) => {
+        for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r) px(cx + x, cy + y, color);
+      };
+      function sprite(map, legend, ox, oy, flip = false) {
+        for (let r = 0; r < map.length; r++)
+          for (let c = 0; c < map[r].length; c++) {
+            const col = legend[map[r][c]];
+            if (!col) continue;
+            px((flip ? ox + (map[r].length - 1 - c) : ox + c), oy + r, col);
+          }
+      }
+
+      // ---------------- background ----------------
+      rect(0, 0, W, H, '#07090c');
+      const leaf = ['#1c5a22', '#2c7a2e', '#3f9b3a', '#15401a'];
+      for (let x = 0; x < W; x++) {
+        const depth = 6 + Math.floor(rnd() * 7) + (x % 9 === 0 ? 4 : 0);
+        for (let y = 0; y < depth; y++) if (rnd() < 0.82) px(x, y, leaf[Math.floor(rnd() * leaf.length)]);
+        if (rnd() < 0.1) { const len = depth + 3 + Math.floor(rnd() * 10); for (let y = depth; y < len; y++) if (rnd() < 0.7) px(x, y, leaf[Math.floor(rnd() * 2)]); }
+      }
+      // mossy wall on the right
+      for (let x = 140; x < W; x++)
+        for (let y = 8; y < 57; y++) {
+          let col = (x + y) % 7 < 4 ? '#5f6566' : '#73797a';
+          if (rnd() < 0.22) col = rnd() < 0.5 ? '#2c7a2e' : '#1c5a22';
+          if (x % 6 === 0 || y % 5 === 0) col = '#3c4042';
+          px(x, y, col);
+        }
+
+      // ---------------- fretboard floor ----------------
+      const TOP = 57;
+      rect(0, TOP, W, H - TOP, '#2c2925');             // neck wood
+      rect(0, TOP, W, 1, '#413b34');                    // top edge
+      rect(0, H - 2, W, 2, '#1b1916');                  // bottom edge
+      rect(4, TOP, 3, H - TOP, '#ece5d6');              // nut (left)
+      const frets = [];
+      for (let fx = 22; fx < W; fx += 19) { rect(fx, TOP, 1, H - TOP, '#5a554d'); frets.push(fx); }
+      for (let i = 0; i < 6; i++) { const sy = TOP + 3 + i * 3; rect(7, sy, W - 7, 1, '#b7b1a3'); } // strings
+      // inlay dots (center line)
+      [1, 2, 3, 5].forEach((k) => { const mx = (frets[k] + frets[k - 1]) / 2; px(mx, 68, '#6a655d'); });
+
+      // soft shadows
+      const shadow = (cx, w) => { ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect((cx - w / 2) * SCALE, 60 * SCALE, w * SCALE, 2 * SCALE); };
+      shadow(22, 16); shadow(125, 26);
+
+      // amber root note "C" on the fret the goblin stands on
+      disc(125, 69, 6, '#bd7517');
+      disc(125, 69, 5, '#e0922f');
+      ['.CC', 'C..', 'C..', '.CC'].forEach((row, r) =>
+        [...row].forEach((ch, c) => { if (ch === 'C') px(123 + c, 67 + r, '#3a2410'); }),
+      );
+
+      // ---------------- floating notes ----------------
+      const note = (x, y) => { ctx.fillStyle = '#cfc7b4'; px(x, y, '#cfc7b4'); px(x + 1, y, '#cfc7b4'); px(x + 1, y - 1, '#cfc7b4'); px(x + 1, y - 2, '#cfc7b4'); px(x + 2, y - 2, '#cfc7b4'); };
+      note(54, 18); note(88, 12); note(108, 22);
+
+      // ---------------- sprites ----------------
+      const KNIGHT = [
+        '......ww........', '.....wwww.......', '....KKKKKK......',
+        '...KhhhhhhK.....', '...KhhhhhhK.....', '...KhsssshK.....',
+        '...KKssssKK.....', '....KbbbbK......', '...KbbbbbbK..K..',
+        '..KbbbbbbbKKKbK.', '..KdbbbbbbbbbbbK', '..KdbbbbbbbKKKK.',
+        '..KddbbbbbbK....', '..KddbbbbbK.....', '...KbbbbbbK.....',
+        '...KbbKKbbK.....', '..KbbK..KbbK....', '..KbK....KbK....',
+        '.KbbK....KbbK...', '.KttK....KttK...', '.KttK....KttK...',
+        '.KKK......KKK...',
+      ];
+      const knightLegend = { K: '#0a0a14', b: '#2f5bd0', d: '#16306f', h: '#86a6ff', s: '#eeba86', w: '#ffffff', t: '#33383f' };
+
+      // flying-V guitar thrown like a dagger, headstock leading (to the right)
+      const GUITAR = [
+        'RRK...........................',
+        'RrRK..........................',
+        '.RrRK.........................',
+        '..RrRK........................',
+        '...RrrRK......................',
+        '....RrrRKnnnnnnnnnnnnnK........',
+        '.....RrhRmKffffffffffKKttK....',
+        '.....RrrRmKffffffffffKttttttt.',
+        '....RrrRKnnnnnnnnnnnnnKKttK....',
+        '...RrrRK......................',
+        '..RrRK........................',
+        '.RrRK.........................',
+        'RrRK..........................',
+        'RRK...........................',
+      ];
+      const guitarLegend = { K: '#0a0a0a', R: '#7d1419', r: '#e22b2f', h: '#ff8a78', n: '#1d2128', f: '#cdd2da', m: '#9aa0aa', t: '#d9dee6' };
+
+      const GOBLIN = [
+        '....K........K..........', '...KGK......KGK.........', '...KGK......KGK.........',
+        '...KGGKKKKKKGGK.........', '..KGGGGGGGGGGGGK........', '.KGGGGGGGGGGGGGGK.......',
+        '.KGGeeGGGGGGeeGGK.......', '.KGGeKGGGGGGKeGGK.......', '.KGGGGGGGGGGGGGGK.......',
+        '.KGGGggggggggGGGK.......', '.KGGgTGggggGTgGGK.......', '.KGGGgggmmgggGGGK.......',
+        '..KGGGGGmmGGGGGGK.......', 'KKKGGGGGGGGGGGGGKKK.....', 'KWWKGGGGGGGGGGGGKWWK....',
+        'KWWKKGGGGGGGGGGKKWWKKK..', '.KKKLGGGGGGGGGGLKKKGGGK.', '...KLGGGGGGGGGGLK..KGGGK',
+        '...KGGGGGGGGGGGGK..KKKK.', '...KGGGG.CCC.GGGGK......', '...KGGGGC...GGGGK.......',
+        '...KGGGGC...GGGGK.......', '...KGGGG.CCC.GGGGK......', '...KGGKGGGGGGGGKGGK.....',
+        '...KGGK.KKKKKK.KGGK.....', '..KGGK........KGGK......', '..KGGK........KGGK......',
+        '..KGGK........KGGK......', '.KGGGK........KGGGK.....', '.KKKKK........KKKKK.....',
+      ];
+      const goblinLegend = { K: '#160a06', G: '#ee7a2d', g: '#b1521a', L: '#ffa860', W: '#f2ecdd', e: '#ffffff', T: '#fff4e0', m: '#5a1f10', C: '#fff1cf' };
+
+      // motion trail from the knight to the guitar
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      for (let i = 0; i < 6; i++) ctx.fillRect((36 + i * 8) * SCALE, (46 + (i % 2)) * SCALE, 4 * SCALE, SCALE);
+
+      sprite(GOBLIN, goblinLegend, 113, 28);
+      sprite(GUITAR, guitarLegend, 90, 40);
+      sprite(KNIGHT, knightLegend, 12, 37);
+
+      // impact starburst where the headstock meets the goblin
+      const star = (cx, cy) => {
+        ctx.fillStyle = '#fff3c4';
+        [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3], [2, 2], [-2, -2], [2, -2], [-2, 2]].forEach(([dx, dy]) => px(cx + dx, cy + dy, '#fff3c4'));
+        ctx.fillStyle = '#ffd24a';
+        [[1, 0], [-1, 0], [0, 1], [0, -1], [4, 1], [-4, -1], [1, 4], [-1, -4]].forEach(([dx, dy]) => px(cx + dx, cy + dy, '#ffd24a'));
+      };
+      star(116, 47);
+
+      ctx.strokeStyle = '#000'; ctx.lineWidth = SCALE;
+      ctx.strokeRect(SCALE / 2, SCALE / 2, 1280 - SCALE, 640 - SCALE);
+      window.__done = true;
+    </script>
+  </body>
+</html>
