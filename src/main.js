@@ -1,4 +1,5 @@
 import './style.css';
+import { randomQuote } from './quotes.js';
 import { initFindNotes } from './views/findNotes.js';
 import { initNameNote } from './views/nameNote.js';
 import { initOpenScales } from './views/openScales.js';
@@ -35,3 +36,8 @@ function activate(name) {
 
 tabs.forEach((tab) => tab.addEventListener('click', () => activate(tab.dataset.view)));
 activate('find');
+
+// A different guitarist's words each visit.
+const q = randomQuote();
+document.getElementById('epigraph').innerHTML =
+  `<blockquote>“${q.text}”</blockquote><figcaption>— ${q.who}</figcaption>`;

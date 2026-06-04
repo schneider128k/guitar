@@ -18,7 +18,7 @@ const SVGNS = 'http://www.w3.org/2000/svg';
 const L = {
   stringGap: 40,
   topPad: 30,
-  bottomPad: 34,
+  bottomPad: 52, // room so fret numbers clear the bottom-string note circles
   labelW: 26, // tuning letters at far left
   openW: 60, // open-string column
   nutW: 9,
@@ -132,9 +132,10 @@ function buildNeck(fretCount) {
     svg.appendChild(t);
   }
 
-  // Fret numbers (0 included)
+  // Fret numbers (0 included) — kept well below the neck so the bottom-string
+  // note circles never cover them.
   for (let f = 0; f <= fretCount; f++) {
-    const t = el('text', { class: 'fb-fretnum', x: g.dotX(f), y: g.neckBottom + 22 });
+    const t = el('text', { class: 'fb-fretnum', x: g.dotX(f), y: g.neckBottom + 40 });
     t.textContent = String(f);
     svg.appendChild(t);
   }
