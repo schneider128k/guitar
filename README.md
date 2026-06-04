@@ -11,8 +11,10 @@ and [VexFlow](https://www.vexflow.com/) for standard notation + TAB.
 
 | Tab | What it does |
 | --- | --- |
+| **Guided Path** | A structured curriculum that sequences Find-Note drills — open position (to fret 5) first, then the full neck (to fret 12). Tracks lesson progress + a daily streak in `localStorage`. |
 | **Find Notes** | Two-phase **Learn → Quiz**: study every position of a target note (e.g. all C's), then find them from memory by clicking. Open strings included; scored with progress pips, mistakes + time. |
 | **Name the Note** | A position is highlighted; pick its name from four choices. |
+| **🎤 Play** | The app names a note; you **play it on the guitar** and the mic confirms the pitch (pitchy + Web Audio), with a live tuner. Works in Safari on iPhone/iPad — tap to grant mic access. |
 | **Open-Position Scales** | Browse the five first-position major scales (C, G, D, A, E) as fretboard + notation + TAB. |
 | **CAGED Shapes** | Explore the 5 movable major-scale shapes in any key; toggle note names / scale degrees. |
 
@@ -21,10 +23,9 @@ across visits) and a **rotating guitarist quote** on each load.
 
 ## Roadmap ideas
 
-- 🎤 **Play-the-note mode** — detect pitch from the mic (Web Audio + pitch
-  detection) so you can answer by playing instead of clicking.
 - Scale quizzes (identify the key / complete the scale).
 - 3-notes-per-string shapes; chords.
+- Add sharps/flats to the note drills; Name-the-Note lessons in the Guided Path.
 
 ## Develop
 

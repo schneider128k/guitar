@@ -1,13 +1,17 @@
 import './style.css';
 import { randomQuote } from './quotes.js';
+import { initGuidedPath } from './views/guidedPath.js';
 import { initFindNotes } from './views/findNotes.js';
 import { initNameNote } from './views/nameNote.js';
+import { initPlay } from './views/play.js';
 import { initOpenScales } from './views/openScales.js';
 import { initCagedShapes } from './views/cagedShapes.js';
 
 const VIEWS = {
+  guided: initGuidedPath,
   find: initFindNotes,
   name: initNameNote,
+  play: initPlay,
   open: initOpenScales,
   caged: initCagedShapes,
 };
@@ -35,7 +39,7 @@ function activate(name) {
 }
 
 tabs.forEach((tab) => tab.addEventListener('click', () => activate(tab.dataset.view)));
-activate('find');
+activate('guided');
 
 // A different guitarist's words each visit.
 const q = randomQuote();
