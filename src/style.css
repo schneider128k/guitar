@@ -677,6 +677,16 @@ button.ghost:active { transform: scale(0.98); }
   color: var(--amber-deep);
   letter-spacing: -0.01em;
 }
+.ss-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+.ss-controls:empty { display: none; }
+.ss-chordbtn { min-width: 2.8rem; }
+.ss-chordname { color: var(--ink-soft); font-weight: 600; font-size: 0.95rem; }
 .ss-note {
   margin-top: 1rem;
   padding: 1rem 1.2rem;

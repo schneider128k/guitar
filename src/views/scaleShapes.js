@@ -1,30 +1,39 @@
 // Guided mini-tour of the 5 major-scale (CAGED) shapes.
 //
-// The whole point is the "click": a major scale is ONE set of notes seen
-// through 5 overlapping windows, and each window is framed around a chord shape
-// you already know — C, A, G, E, D. Crucially these are movable chord GRIPS
-// (the open-chord fingerings, barred and slid up the neck), not the open chords
-// sitting at the nut. So instead of asking you to picture them, each step LIGHTS
-// UP the actual chord inside its scale box.
+// Teaching order, built to remove the classic confusion one layer at a time:
+//   1. The letters C-A-G-E-D ARE five open chords you already play (tap each).
+//   2. Take one chord you know (open E).
+//   3. Slide that same shape up the neck — it's now "movable" (a new chord).
+//   4. A whole major scale is just those 5 shapes' worth of notes...
+//   5-9. ...one window per shape, with the chord lit up inside it.
+//   10. The windows overlap into one connected map.
+//   11. Where to start.
+// Consistent colour key throughout: amber = root, teal = other chord tones,
+// faint = scale-only notes, outlined = note shared between two windows.
 import { makeFretboard, renderDots } from '../ui/fretboard.js';
-import { cagedBox, CAGED_BOXES, noteAt } from '../music.js';
+import { cagedBox, CAGED_BOXES, noteAt, noteShort } from '../music.js';
 
 const KEY = 'C'; // fixed key keeps the tour concrete; the shapes are movable.
 
-// The 5 CAGED chord grips that make a C, as [string, fret]. Each is one of the
-// open-chord fingerings transposed up the neck so its root lands on C. Verified
+// The 5 OPEN chords you already know, as [string, fret] grips, with the chroma
+// of their root note (C=0, D=2, E=4, G=7, A=9). These live at the nut.
+const OPEN_CHORDS = {
+  C: { grip: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]], root: 0, tab: 'x32010' },
+  A: { grip: [[5, 0], [4, 2], [3, 2], [2, 2], [1, 0]], root: 9, tab: 'x02220' },
+  G: { grip: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]], root: 7, tab: '320003' },
+  E: { grip: [[6, 0], [5, 2], [4, 2], [3, 1], [2, 0], [1, 0]], root: 4, tab: '022100' },
+  D: { grip: [[4, 0], [3, 2], [2, 3], [1, 2]], root: 2, tab: 'xx0232' },
+};
+
+// The same 5 grips moved up the neck so they all make a C major chord. Verified
 // to be C/E/G chord tones sitting inside the matching scale box.
 const CHORD_GRIPS = {
-  C: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]], // open C (x32010), at the nut
-  A: [[5, 3], [4, 5], [3, 5], [2, 5], [1, 3]], // open A barred at 3 (x35553)
-  G: [[6, 8], [5, 7], [4, 5], [3, 5], [2, 5], [1, 8]], // open G slid to 5 (8-7-5-5-5-8)
+  C: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]], // open C at the nut
+  A: [[5, 3], [4, 5], [3, 5], [2, 5], [1, 3]], // open A barred at 3
+  G: [[6, 8], [5, 7], [4, 5], [3, 5], [2, 5], [1, 8]], // open G slid to 5
   E: [[6, 8], [5, 10], [4, 10], [3, 9], [2, 8], [1, 8]], // open E barred at 8
-  D: [[4, 10], [3, 12], [2, 13], [1, 12]], // open D slid to 10 (xx-10-12-13-12)
+  D: [[4, 10], [3, 12], [2, 13], [1, 12]], // open D slid to 10
 };
-const OPEN_E = [[6, 0], [5, 2], [4, 2], [3, 1], [2, 0], [1, 0]]; // the open E chord you know
-
-// Plain-tab strings shown in the captions, so you can play the open chord too.
-const OPEN_TAB = { C: 'x32010', A: 'x02220', G: '320003', E: '022100', D: 'xx0232' };
 const BARRE_NOTE = {
   C: 'right at the nut',
   A: 'barred at the 3rd fret',
@@ -35,6 +44,25 @@ const BARRE_NOTE = {
 
 function maxFretOf(dots) {
   return dots.reduce((m, d) => Math.max(m, d.fret), 0);
+}
+
+// A bare chord grip: root amber, other chord tones teal, note names on each.
+// These major chords are spelled with sharps (A major = A C♯ E), so show the
+// sharp glyph rather than the board layer's default flats (Db).
+function chordDots(grip, rootChroma) {
+  return grip.map(([s, f]) => {
+    const n = noteAt(s, f);
+    return { string: s, fret: f, status: n.chroma === rootChroma ? 'root' : 'chord', label: noteShort(n.note) };
+  });
+}
+
+// The open E AND the same shape moved up to make a C — both on one neck, so the
+// identical finger pattern is visible in two places ("movable").
+function movableDemoDots() {
+  return [
+    ...chordDots(OPEN_CHORDS.E.grip, 4), // open E (root E)
+    ...chordDots(CHORD_GRIPS.E, 0), // same shape up the neck → C (root C)
+  ];
 }
 
 // A scale box with its chord grip lit up: roots amber, the grip's other chord
@@ -52,21 +80,6 @@ function gripBoxDots(shape) {
   });
 }
 
-// The same E shape twice: open E at the nut (teal) and that grip barred up the
-// neck to make a C (amber) — the "movable" idea in one picture.
-function movableDemoDots() {
-  const dots = OPEN_E.map(([s, f]) => ({
-    string: s,
-    fret: f,
-    status: 'shape-b',
-    label: noteAt(s, f).note,
-  }));
-  for (const [s, f] of CHORD_GRIPS.E) {
-    dots.push({ string: s, fret: f, status: 'shape-a', label: noteAt(s, f).note });
-  }
-  return dots;
-}
-
 // Every C-major note the 5 boxes cover — "the whole scale at once".
 function fullScaleDots() {
   const all = new Map();
@@ -80,8 +93,7 @@ function fullScaleDots() {
   }));
 }
 
-// Two neighbouring boxes overlaid so the overlap is obvious: A = amber,
-// B = teal, notes in BOTH get an outlined "shared" dot.
+// Two neighbouring boxes overlaid: A = amber, B = teal, both = outlined.
 function overlapDots(shapeA, shapeB) {
   const map = new Map();
   for (const p of cagedBox(KEY, shapeA)) map.set(`${p.string}:${p.fret}`, { p, side: 'a' });
@@ -99,44 +111,71 @@ function overlapDots(shapeA, shapeB) {
 }
 
 export function initScaleShapes(container) {
+  let openChordShape = 'C'; // which open chord the interactive first step shows
+
   const STEPS = [
     {
-      title: 'It’s one scale, seen 5 ways',
-      body: `A major scale is just <strong>7 notes</strong> that repeat up the whole
-        neck — for C major: C D E F G A B. Here’s <em>every</em> one of them at
-        once 👇 Overwhelming, right? So we don’t learn it as a blur. We slice the
-        neck into <strong>5 windows</strong>, and each window is built around a
-        chord shape you already know — <strong>C, A, G, E, D</strong>. That’s the
-        “CAGED” system: five chords give five scale shapes.`,
-      dots: fullScaleDots,
+      title: 'The 5 shapes are 5 chords you already know',
+      body: `“CAGED” is just a word spelled from five open chords you can already
+        play: <strong>C, A, G, E, D</strong> (all major). That’s the whole meaning
+        of the letters — five of the first chords every beginner learns. Tap each
+        to see the chord you know. <em>Amber = the root, teal = the chord’s other
+        notes.</em>`,
+      controls: (el) => {
+        el.innerHTML =
+          `<div class="key-buttons">` +
+          CAGED_BOXES.map(
+            (s) =>
+              `<button class="choice ss-chordbtn ${s === openChordShape ? 'active' : ''}" data-s="${s}">${s}</button>`,
+          ).join('') +
+          `</div><span class="ss-chordname">Open ${openChordShape} major (<code>${OPEN_CHORDS[openChordShape].tab}</code>)</span>`;
+        el.querySelectorAll('.ss-chordbtn').forEach((b) =>
+          b.addEventListener('click', () => {
+            openChordShape = b.dataset.s;
+            render();
+          }),
+        );
+      },
+      dots: () => chordDots(OPEN_CHORDS[openChordShape].grip, OPEN_CHORDS[openChordShape].root),
     },
     {
-      title: 'First: a “shape” is a movable chord',
-      body: `The names C-A-G-E-D are five chord <strong>shapes</strong> — the finger
-        grips you know as open chords. The magic: keep the grip, slide it up the
-        neck, barre with your index finger, and it becomes a new chord. Here’s the
-        same <strong>E shape</strong> twice — your open <strong>E</strong> at the
-        nut (teal), and that exact grip barred at the 8th fret, now a
-        <strong>C</strong> (amber). So you won’t have to picture anything: every
-        step below <strong>lights up the chord inside the shape</strong>.`,
+      title: 'Step 1 — take a chord you know',
+      body: `Here’s the open <strong>E chord</strong> — nothing new, you play this
+        already. The amber dot is its root (E); the teal dots are the other chord
+        tones. Just keep this shape in your eye for the next step.`,
+      dots: () => chordDots(OPEN_CHORDS.E.grip, 4),
+    },
+    {
+      title: 'Step 2 — slide it up: now it’s “movable”',
+      body: `Now barre that <em>exact same</em> finger pattern with your index finger
+        and slide it up the neck. Down at the nut it’s an <strong>E</strong>; up at
+        the 8th fret the identical shape rings a <strong>C</strong>. Same shape,
+        new chord — that’s why we still call it “the E shape” even when it’s playing
+        a C. <em>The letter names your hand’s shape, not the chord you hear.</em>`,
       dots: movableDemoDots,
+    },
+    {
+      title: 'So a major scale is just those 5 shapes',
+      body: `Each of the five chord shapes carries a chunk of the major scale around
+        it. Stack all five up the neck and you get <em>every</em> note of C major
+        (C D E F G A B), shown here. Overwhelming as one blob — so we learn it
+        <strong>one shape at a time</strong>.`,
+      dots: fullScaleDots,
     },
     ...CAGED_BOXES.map((shape, i) => ({
       title: `Shape ${i + 1} of 5 — the ${shape} shape`,
       body:
         shape === 'C'
           ? `The bold dots are the <strong>C chord</strong> — your open C grip
-             (<code>${OPEN_TAB.C}</code>), right at the nut. <strong>Amber</strong> =
-             the roots (the C’s), <strong>teal</strong> = the chord’s other notes.
-             The faint dots are the rest of the C-major scale wrapping around the
-             grip you already play.`
+             (<code>${OPEN_CHORDS.C.tab}</code>), right at the nut. The faint dots
+             are the rest of the C-major scale wrapping around the grip you already
+             play.`
           : `The bold dots are your open <strong>${shape}</strong> grip
-             (<code>${OPEN_TAB[shape]}</code>) <strong>${BARRE_NOTE[shape]}</strong>,
-             which makes a C. That’s the “${shape} shape” — same fingers as the open
-             chord, just moved up. Amber = roots, teal = the other chord tones, and
-             the faint dots are the scale around it.${
+             (<code>${OPEN_CHORDS[shape].tab}</code>) <strong>${BARRE_NOTE[shape]}</strong>,
+             which makes a C — the “${shape} shape”. Same fingers as the open chord,
+             just moved up. The faint dots are the scale around it.${
                shape === 'E'
-                 ? ' (An F barre chord is this same shape at the 1st fret.) This one’s the most useful — its root is on the low-E string.'
+                 ? ' (An F barre chord is this same shape at the 1st fret.) This one’s the most useful — root on the low-E string.'
                  : ''
              }`,
       dots: () => gripBoxDots(shape),
@@ -147,8 +186,8 @@ export function initScaleShapes(container) {
         <strong>C → A → G → E → D</strong>, then C again at the 12th fret — and
         neighbours <strong>overlap</strong>. Here the C shape (amber) and the next
         one, the A shape (teal), meet: the outlined notes belong to <em>both</em>.
-        The end of one window <em>is</em> the start of the next, so it’s really
-        <strong>one connected map</strong>, not five islands.`,
+        The end of one window <em>is</em> the start of the next — one connected map,
+        not five islands.`,
       dots: () => overlapDots('C', 'A'),
     },
     {
@@ -175,6 +214,7 @@ export function initScaleShapes(container) {
       <p class="ss-step js-step"></p>
 
       <h3 class="ss-lesson-title js-title"></h3>
+      <div class="ss-controls js-controls"></div>
       <div class="board ss-board js-board"></div>
       <div class="ss-note js-body"></div>
 
@@ -189,6 +229,7 @@ export function initScaleShapes(container) {
   const barEl = $('.js-bar');
   const stepEl = $('.js-step');
   const titleEl = $('.js-title');
+  const controlsEl = $('.js-controls');
   const boardEl = $('.js-board');
   const bodyEl = $('.js-body');
   const backBtn = $('.js-back');
@@ -197,6 +238,9 @@ export function initScaleShapes(container) {
 
   function render() {
     const step = STEPS[i];
+    if (step.controls) step.controls(controlsEl);
+    else controlsEl.innerHTML = '';
+
     const dots = step.dots();
     const fb = makeFretboard(boardEl, { fretCount: Math.max(5, maxFretOf(dots) + 1) });
     renderDots(fb, dots, { stagger: 22 });
