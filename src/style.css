@@ -535,7 +535,9 @@ button.ghost:active { transform: scale(0.98); }
 .fb-dot.is-found { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-wrong { fill: var(--red); stroke: #a8362a; animation: shake 0.32s; }
 .fb-dot.is-highlight { fill: #36322c; stroke: var(--amber); stroke-width: 3; }
-/* Two-window overlap (5 Shapes tour): amber box, teal box, outlined = shared. */
+/* 5 Shapes tour: chord tones inside a box = teal; amber box vs teal box for the
+   overlap step; outlined = shared between two boxes. */
+.fb-dot.is-chord { fill: var(--teal); stroke: #1f6f64; }
 .fb-dot.is-shape-a { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-shape-b { fill: var(--teal); stroke: #1f6f64; }
 .fb-dot.is-shared { fill: var(--amber); stroke: var(--teal); stroke-width: 3.5; }
@@ -686,6 +688,15 @@ button.ghost:active { transform: scale(0.98); }
   line-height: 1.55;
 }
 .ss-note strong { color: var(--amber-deep); }
+.ss-note code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  letter-spacing: 0.06em;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  padding: 0.05rem 0.35rem;
+  border-radius: 6px;
+}
 .ss-nav {
   display: flex;
   align-items: center;
