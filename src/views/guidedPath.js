@@ -2,8 +2,10 @@
 // open position (to fret 5) first, then the full neck (to fret 12). Progress
 // and a daily streak persist in localStorage.
 import { createFindDrill } from '../drills/findDrill.js';
+import { createHalfStepsDrill } from '../drills/halfStepsDrill.js';
 
 const PATH = [
+  { id: 'th-half', type: 'halfsteps', title: 'Half steps between the notes', sub: 'Music theory · start here' },
   { id: 'o-C', note: 'C', maxFret: 5, title: 'Find every C', sub: 'Open position · to fret 5' },
   { id: 'o-G', note: 'G', maxFret: 5, title: 'Find every G', sub: 'Open position · to fret 5' },
   { id: 'o-D', note: 'D', maxFret: 5, title: 'Find every D', sub: 'Open position · to fret 5' },
@@ -24,6 +26,13 @@ const PATH = [
   { id: 'a-Gs', note: 'G#', maxFret: 5, title: 'Find every G♯ / A♭', sub: 'Sharps & flats · to fret 5' },
   { id: 'a-As', note: 'A#', maxFret: 5, title: 'Find every A♯ / B♭', sub: 'Sharps & flats · to fret 5' },
   { id: 'a-R', note: 'random-accidental', maxFret: 5, title: 'Random sharps & flats', sub: 'Sharps & flats · to fret 5' },
+  // Sharps & flats across the whole neck.
+  { id: 'an-Cs', note: 'C#', maxFret: 12, title: 'Find every C♯ / D♭', sub: 'Sharps & flats · to fret 12' },
+  { id: 'an-Ds', note: 'D#', maxFret: 12, title: 'Find every D♯ / E♭', sub: 'Sharps & flats · to fret 12' },
+  { id: 'an-Fs', note: 'F#', maxFret: 12, title: 'Find every F♯ / G♭', sub: 'Sharps & flats · to fret 12' },
+  { id: 'an-Gs', note: 'G#', maxFret: 12, title: 'Find every G♯ / A♭', sub: 'Sharps & flats · to fret 12' },
+  { id: 'an-As', note: 'A#', maxFret: 12, title: 'Find every A♯ / B♭', sub: 'Sharps & flats · to fret 12' },
+  { id: 'an-R', note: 'random-accidental', maxFret: 12, title: 'Random sharps & flats', sub: 'Sharps & flats · to fret 12' },
 ];
 
 const KEY_DONE = 'gp.completed';
@@ -75,7 +84,7 @@ export function initGuidedPath(container) {
         <div class="gp-head">
           <div>
             <h2 class="gp-title">Your path</h2>
-            <p class="gp-sub">Learn the natural notes — open position, then the whole neck — then the sharps &amp; flats.</p>
+            <p class="gp-sub">Start with how the notes are spaced, then learn the naturals — open position, then the whole neck — and finally the sharps &amp; flats.</p>
           </div>
           ${streakLine}
         </div>
@@ -132,20 +141,27 @@ export function initGuidedPath(container) {
       </section>`;
     container.querySelector('.gp-back').addEventListener('click', renderList);
 
-    createFindDrill(container.querySelector('.gp-drill'), {
-      note: lesson.note,
-      maxFret: lesson.maxFret,
-      lessonTitle: lesson.title,
-      lessonSub: lesson.sub,
-      onComplete: (result) => {
-        completed.add(lesson.id);
-        if (result.perfect) stars.add(lesson.id);
-        save(KEY_DONE, [...completed]);
-        save('gp.stars', [...stars]);
-        bumpStreak();
-      },
-      onContinue: renderList,
-    });
+    const onComplete = (result) => {
+      completed.add(lesson.id);
+      if (result.perfect) stars.add(lesson.id);
+      save(KEY_DONE, [...completed]);
+      save('gp.stars', [...stars]);
+      bumpStreak();
+    };
+    const drillEl = container.querySelector('.gp-drill');
+
+    if (lesson.type === 'halfsteps') {
+      createHalfStepsDrill(drillEl, { onComplete, onContinue: renderList });
+    } else {
+      createFindDrill(drillEl, {
+        note: lesson.note,
+        maxFret: lesson.maxFret,
+        lessonTitle: lesson.title,
+        lessonSub: lesson.sub,
+        onComplete,
+        onContinue: renderList,
+      });
+    }
   }
 
   renderList();

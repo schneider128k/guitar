@@ -646,6 +646,63 @@ button.ghost:active { transform: scale(0.98); }
 }
 
 /* ===========================================================================
+   HALF STEPS — quick theory primer
+   ========================================================================= */
+.hs-teach p { margin: 0 0 0.4rem; color: var(--ink); font-size: 1.02rem; }
+.hs-teach p strong { color: var(--amber-deep); }
+.hs-scale {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 1.1rem 0 0.7rem;
+}
+.hs-note {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line-2);
+  color: var(--ink);
+}
+.hs-gap { display: grid; place-items: center; }
+.hs-gap b {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.hs-gap--half b { background: var(--amber); color: #fff; border-color: var(--amber-deep); }
+.hs-legend { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }
+.hs-key {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  vertical-align: -2px;
+  background: var(--amber);
+  border: 1px solid var(--amber-deep);
+}
+.hs-pair { display: flex; align-items: center; justify-content: center; gap: 1.1rem; margin: 1.5rem 0; }
+.hs-arrow { font-size: 2rem; color: var(--ink-faint); font-weight: 700; }
+.hs-choices { justify-content: center; }
+.hs-choices .choice { min-width: 9.5rem; }
+
+/* ===========================================================================
    PLAY (mic)
    ========================================================================= */
 .play-panel {

@@ -8,5 +8,6 @@ dist
 smoke.mjs
 shot.mjs
 verify-accidentals.mjs
+verify-halfsteps.mjs
 art/render-hero.mjs
 *.png
