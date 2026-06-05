@@ -83,7 +83,10 @@
 .splash-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, #e0922f, #bd7517); border-radius: 99px; animation: splashfill 3s ease forwards; }
 @keyframes splashfill { from { width: 0; } to { width: 100%; } }
 .splash-skip { margin: 0; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); }
-@media (prefers-reduced-motion: reduce) { .splash-art, .splash-bar-fill { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .splash-art, .splash-bar-fill { animation: none; }
+  .fb-dot-ring { animation: none; stroke-opacity: 0.6; }
+}
 
 html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 
@@ -540,8 +543,20 @@ button.ghost:active { transform: scale(0.98); }
 .fb-dot.is-chord { fill: var(--teal); stroke: #1f6f64; }
 /* Scale-only notes sit small + faint behind the haloed chord shape. */
 .fb-dot.is-scale { fill: var(--dot-default); stroke: rgba(255, 255, 255, 0.22); opacity: 0.5; }
-/* Halo ring marks the notes that form the underlying chord shape. */
-.fb-dot-ring { fill: none; stroke: #fff7ea; stroke-width: 2.5; opacity: 0.6; }
+/* Halo ring marks the moved finger shape; it glows once so the chord lights up. */
+.fb-dot-ring {
+  fill: none;
+  stroke: #fff7ea;
+  stroke-width: 2.5;
+  stroke-opacity: 0.6;
+  animation: ringGlow 1.5s ease-out 0.4s both;
+}
+@keyframes ringGlow {
+  0%, 100% { stroke-opacity: 0.55; }
+  40% { stroke-opacity: 1; stroke-width: 3.5; }
+}
+/* Index-finger barre indicator: light fill + outline so it reads on any neck skin. */
+.fb-barre { fill: rgba(255, 248, 236, 0.16); stroke: rgba(255, 248, 236, 0.42); stroke-width: 1.5; }
 .fb-dot.is-shape-a { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-shape-b { fill: var(--teal); stroke: #1f6f64; }
 .fb-dot.is-shared { fill: var(--amber); stroke: var(--teal); stroke-width: 3.5; }
