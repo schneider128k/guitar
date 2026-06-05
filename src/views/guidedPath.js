@@ -17,6 +17,13 @@ const PATH = [
   { id: 'n-E', note: 'E', maxFret: 12, title: 'Find every E', sub: 'Full neck · to fret 12' },
   { id: 'n-A', note: 'A', maxFret: 12, title: 'Find every A', sub: 'Full neck · to fret 12' },
   { id: 'n-R', note: 'random', maxFret: 12, title: 'Random naturals', sub: 'Full neck · to fret 12' },
+  // Follow-up: the 5 accidentals (each shown with both its sharp and flat name).
+  { id: 'a-Cs', note: 'C#', maxFret: 5, title: 'Find every C♯ / D♭', sub: 'Sharps & flats · to fret 5' },
+  { id: 'a-Ds', note: 'D#', maxFret: 5, title: 'Find every D♯ / E♭', sub: 'Sharps & flats · to fret 5' },
+  { id: 'a-Fs', note: 'F#', maxFret: 5, title: 'Find every F♯ / G♭', sub: 'Sharps & flats · to fret 5' },
+  { id: 'a-Gs', note: 'G#', maxFret: 5, title: 'Find every G♯ / A♭', sub: 'Sharps & flats · to fret 5' },
+  { id: 'a-As', note: 'A#', maxFret: 5, title: 'Find every A♯ / B♭', sub: 'Sharps & flats · to fret 5' },
+  { id: 'a-R', note: 'random-accidental', maxFret: 5, title: 'Random sharps & flats', sub: 'Sharps & flats · to fret 5' },
 ];
 
 const KEY_DONE = 'gp.completed';
@@ -68,7 +75,7 @@ export function initGuidedPath(container) {
         <div class="gp-head">
           <div>
             <h2 class="gp-title">Your path</h2>
-            <p class="gp-sub">Learn the natural notes — open position first, then the whole neck.</p>
+            <p class="gp-sub">Learn the natural notes — open position, then the whole neck — then the sharps &amp; flats.</p>
           </div>
           ${streakLine}
         </div>

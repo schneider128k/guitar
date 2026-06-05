@@ -7,5 +7,6 @@ dist
 # local dev/test tooling (not part of the app)
 smoke.mjs
 shot.mjs
+verify-accidentals.mjs
 art/render-hero.mjs
 *.png

@@ -10,7 +10,16 @@
 //   onComplete(result) : called once when a round is finished {note, mistakes, seconds, perfect}
 //   onContinue()       : guided "Continue →" handler
 import { makeFretboard, renderDots, clearDots } from '../ui/fretboard.js';
-import { noteAt, findPositions, randomItem } from '../music.js';
+import {
+  noteAt,
+  findPositions,
+  randomItem,
+  toSharp,
+  noteShort,
+  noteLabel,
+  chromaOf,
+  ACCIDENTALS,
+} from '../music.js';
 
 const NATURALS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const posKey = (p) => `${p.string}:${p.fret}`;
@@ -66,8 +75,10 @@ export function createFindDrill(container, opts = {}) {
 
   if (selectable) {
     noteSel.innerHTML =
-      `<option value="random">🎲 Random</option>` +
-      NATURALS.map((n) => `<option value="${n}">${n}</option>`).join('');
+      `<option value="random">🎲 Random natural</option>` +
+      NATURALS.map((n) => `<option value="${n}">${n}</option>`).join('') +
+      `<option value="random-accidental">🎲 Random sharp/flat</option>` +
+      ACCIDENTALS.map((n) => `<option value="${n}">${noteLabel(n)}</option>`).join('');
   }
 
   let fb = null;
@@ -82,7 +93,7 @@ export function createFindDrill(container, opts = {}) {
   }
 
   const targetDots = (status) =>
-    state.targets.map((p) => ({ ...p, status, label: state.note }));
+    state.targets.map((p) => ({ ...p, status, label: state.short }));
 
   function renderPips() {
     const total = state.targets.length;
@@ -101,7 +112,7 @@ export function createFindDrill(container, opts = {}) {
     doneEl.innerHTML = '';
     badge.classList.remove('pulse');
 
-    hEl.innerHTML = `Memorize every <span class="hl">${state.note}</span>`;
+    hEl.innerHTML = `Memorize every <span class="hl">${state.label}</span>`;
     subEl.textContent =
       `${state.targets.length} positions up to fret ${state.maxFret} · take your time`;
     actionsEl.innerHTML = `<button class="primary js-go">Quiz me →</button>`;
@@ -120,7 +131,7 @@ export function createFindDrill(container, opts = {}) {
     state.start = performance.now();
     badge.classList.add('pulse');
 
-    hEl.innerHTML = `Find every <span class="hl">${state.note}</span>`;
+    hEl.innerHTML = `Find every <span class="hl">${state.label}</span>`;
     subEl.textContent = 'Click each one — open strings included.';
     actionsEl.innerHTML = `<button class="ghost js-peek">Study again</button>`;
     $('.js-peek').addEventListener('click', enterLearn);
@@ -159,7 +170,7 @@ export function createFindDrill(container, opts = {}) {
     doneEl.innerHTML = `
       <div class="fn-done">
         <span class="big">${perfect ? '🎯 Perfect!' : '✓ Done!'}</span>
-        &nbsp;Found all <strong>${state.targets.length}</strong> ${state.note}'s in
+        &nbsp;Found all <strong>${state.targets.length}</strong> ${state.short}'s in
         <strong>${seconds}s</strong> with
         <strong>${miss}</strong> mistake${miss === 1 ? '' : 's'}.
       </div>`;
@@ -180,7 +191,7 @@ export function createFindDrill(container, opts = {}) {
   function quizDots() {
     const dots = [...state.found].map((k) => {
       const [string, fret] = k.split(':').map(Number);
-      return { string, fret, status: 'found', label: state.note };
+      return { string, fret, status: 'found', label: state.short };
     });
     if (state.lastWrong) dots.push({ ...state.lastWrong, status: 'wrong', label: '✗' });
     return dots;
@@ -191,7 +202,7 @@ export function createFindDrill(container, opts = {}) {
     const { string, fret } = pos;
     if (fret > state.maxFret) return;
     const key = posKey({ string, fret });
-    const hit = noteAt(string, fret).note === state.note;
+    const hit = noteAt(string, fret).chroma === state.chroma;
 
     if (hit && !state.found.has(key)) {
       state.found.add(key);
@@ -217,11 +228,20 @@ export function createFindDrill(container, opts = {}) {
   function startRound(noteChoice) {
     const maxFret = selectable ? parseInt(maxFretSel.value, 10) : opts.maxFret;
     const choice = noteChoice ?? opts.note;
-    const note = choice === 'random' ? randomItem(NATURALS) : choice;
+    const pick =
+      choice === 'random'
+        ? randomItem(NATURALS)
+        : choice === 'random-accidental'
+          ? randomItem(ACCIDENTALS)
+          : choice;
+    const note = toSharp(pick); // canonical sharp spelling used for matching
     ensureBoard(maxFret);
-    badge.textContent = note;
+    badge.textContent = noteShort(note);
     state = {
       note,
+      chroma: chromaOf(note),
+      short: noteShort(note),
+      label: noteLabel(note),
       maxFret,
       targets: findPositions(note, maxFret),
       found: new Set(),
