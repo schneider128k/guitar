@@ -542,8 +542,6 @@ button.ghost:active { transform: scale(0.98); }
 /* 5 Shapes tour: chord tones inside a box = teal; amber box vs teal box for the
    overlap step; outlined = shared between two boxes. */
 .fb-dot.is-chord { fill: var(--teal); stroke: #1f6f64; }
-/* Scale-only notes sit small + faint behind the haloed chord shape. */
-.fb-dot.is-scale { fill: var(--dot-default); stroke: rgba(255, 255, 255, 0.22); opacity: 0.5; }
 /* Halo ring flags the moved finger shape: it FLASHES for ~2s then fades away,
    a quick pointer to the shape with nothing left cluttering the board after. */
 .fb-dot-ring {

@@ -65,11 +65,11 @@ function movableDemoDots() {
   ];
 }
 
-// A scale box with its chord lit up: chord notes full-size + labelled (roots
-// amber, other tones teal); the rest of the scale sits behind as small faint
-// dots. The translated open-chord FINGER shape (notes that were fretted in the
-// open chord) gets a ring that FLASHES for ~2s then fades — a quick pointer to
-// the shape, nothing persistent. Open-string-derived notes don't flash.
+// A whole scale box (the shape to memorize) with its chord coloured in: chord
+// roots amber, other chord tones teal, the rest of the scale full-size graphite
+// — all the same size so the shape reads clearly. The translated open-chord
+// FINGER shape (notes that were fretted in the open chord) gets a ring that
+// FLASHES for ~2s then fades — a quick pointer, nothing persistent.
 function gripBoxDots(shape) {
   const grip = new Set(CHORD_GRIPS[shape].map(([s, f]) => `${s}:${f}`));
   const openStrings = new Set(
@@ -84,13 +84,13 @@ function gripBoxDots(shape) {
         fret: p.fret,
         status: p.degree === 1 ? 'root' : 'chord',
         label: p.note,
-        ring: !openStrings.has(p.string), // ring only the moved finger shape
+        ring: !openStrings.has(p.string), // flash only the moved finger shape
       });
     } else {
-      scale.push({ string: p.string, fret: p.fret, status: 'scale', label: '', r: 9 });
+      scale.push({ string: p.string, fret: p.fret, status: 'default', label: '' });
     }
   }
-  return [...scale, ...chord]; // scale reveals first, then the chord lights up
+  return [...scale, ...chord]; // scale reveals first, then the chord flashes
 }
 
 // Every C-major note the 5 boxes cover — "the whole scale at once".
@@ -191,7 +191,7 @@ export function initScaleShapes(container) {
           : '';
       return {
         title: `Shape ${i + 1} of 5 — the ${shape} shape`,
-        body: `${intro} The faint dots are the rest of the C-major scale around it.${extra}`,
+        body: `${intro} The grey dots are the rest of the C-major scale — the full shape to memorize.${extra}`,
         dots: () => gripBoxDots(shape),
       };
     }),
