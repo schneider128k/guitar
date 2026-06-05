@@ -85,7 +85,8 @@
 .splash-skip { margin: 0; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); }
 @media (prefers-reduced-motion: reduce) {
   .splash-art, .splash-bar-fill { animation: none; }
-  .fb-dot-ring { animation: none; stroke-opacity: 0.6; }
+  /* No flash; show a faint static ring on the shape instead. */
+  .fb-dot-ring { animation: none; stroke-opacity: 0.55; }
 }
 
 html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
@@ -543,20 +544,24 @@ button.ghost:active { transform: scale(0.98); }
 .fb-dot.is-chord { fill: var(--teal); stroke: #1f6f64; }
 /* Scale-only notes sit small + faint behind the haloed chord shape. */
 .fb-dot.is-scale { fill: var(--dot-default); stroke: rgba(255, 255, 255, 0.22); opacity: 0.5; }
-/* Halo ring marks the moved finger shape; it glows once so the chord lights up. */
+/* Halo ring flags the moved finger shape: it FLASHES for ~2s then fades away,
+   a quick pointer to the shape with nothing left cluttering the board after. */
 .fb-dot-ring {
   fill: none;
   stroke: #fff7ea;
-  stroke-width: 2.5;
-  stroke-opacity: 0.6;
-  animation: ringGlow 1.5s ease-out 0.4s both;
+  stroke-width: 3;
+  stroke-opacity: 0;
+  animation: ringFlash 2s ease-out both;
 }
-@keyframes ringGlow {
-  0%, 100% { stroke-opacity: 0.55; }
-  40% { stroke-opacity: 1; stroke-width: 3.5; }
+@keyframes ringFlash {
+  0% { stroke-opacity: 0; stroke-width: 7; }
+  8% { stroke-opacity: 1; stroke-width: 3; }
+  24% { stroke-opacity: 0.15; }
+  40% { stroke-opacity: 1; }
+  56% { stroke-opacity: 0.15; }
+  72% { stroke-opacity: 1; }
+  100% { stroke-opacity: 0; }
 }
-/* Index-finger barre indicator: light fill + outline so it reads on any neck skin. */
-.fb-barre { fill: rgba(255, 248, 236, 0.16); stroke: rgba(255, 248, 236, 0.42); stroke-width: 1.5; }
 .fb-dot.is-shape-a { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-shape-b { fill: var(--teal); stroke: #1f6f64; }
 .fb-dot.is-shared { fill: var(--amber); stroke: var(--teal); stroke-width: 3.5; }

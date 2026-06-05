@@ -34,12 +34,12 @@ const CHORD_GRIPS = {
   E: [[6, 8], [5, 10], [4, 10], [3, 9], [2, 8], [1, 8]], // open E barred at 8
   D: [[4, 10], [3, 12], [2, 13], [1, 12]], // open D slid to 10
 };
-const BARRE_NOTE = {
+const MOVED_NOTE = {
   C: 'right at the nut',
-  A: 'barred at the 3rd fret',
-  G: 'slid up to the 5th fret',
-  E: 'barred at the 8th fret',
-  D: 'slid up to the 10th fret',
+  A: 'moved up to the 3rd fret',
+  G: 'moved up to the 5th fret',
+  E: 'moved up to the 8th fret',
+  D: 'moved up to the 10th fret',
 };
 
 function maxFretOf(dots) {
@@ -65,13 +65,11 @@ function movableDemoDots() {
   ];
 }
 
-// A scale box with its chord grip lit up: the chord's notes are full-size and
-// labelled — roots amber, other chord tones teal — so the chord pops; the rest
-// of the scale sits behind as small faint dots. The halo RING marks only the
-// translated finger shape: the notes that were *fretted* in the open chord.
-// Notes that came from the open chord's OPEN strings (they turn into the barre
-// when the shape moves up) are shown but left un-ringed, so the recognizable
-// open-chord shape is what gets circled.
+// A scale box with its chord lit up: chord notes full-size + labelled (roots
+// amber, other tones teal); the rest of the scale sits behind as small faint
+// dots. The translated open-chord FINGER shape (notes that were fretted in the
+// open chord) gets a ring that FLASHES for ~2s then fades — a quick pointer to
+// the shape, nothing persistent. Open-string-derived notes don't flash.
 function gripBoxDots(shape) {
   const grip = new Set(CHORD_GRIPS[shape].map(([s, f]) => `${s}:${f}`));
   const openStrings = new Set(
@@ -93,35 +91,6 @@ function gripBoxDots(shape) {
     }
   }
   return [...scale, ...chord]; // scale reveals first, then the chord lights up
-}
-
-const SVGNS = 'http://www.w3.org/2000/svg';
-
-// The index-finger barre for a moved-up shape: the fret the open strings land on,
-// spanning those strings. null for shapes played without a barre — C (at the nut)
-// and D (only one open string).
-function barreInfo(shape) {
-  const open = OPEN_CHORDS[shape].grip.filter(([, f]) => f === 0).map(([s]) => s);
-  if (open.length < 2) return null;
-  const fret = CHORD_GRIPS[shape].find(([s]) => open.includes(s))[1];
-  if (!fret) return null; // C shape lives at the nut
-  return { fret, loStr: Math.min(...open), hiStr: Math.max(...open) };
-}
-
-// A rounded bar across the barred strings, drawn behind the dots.
-function drawBarre(fb, { fret, loStr, hiStr }) {
-  const x = fb.geo.dotX(fret);
-  const yTop = fb.geo.stringY(loStr);
-  const yBot = fb.geo.stringY(hiStr);
-  const hw = 13;
-  const bar = document.createElementNS(SVGNS, 'rect');
-  bar.setAttribute('class', 'fb-barre');
-  bar.setAttribute('x', x - hw);
-  bar.setAttribute('y', yTop - 7);
-  bar.setAttribute('width', hw * 2);
-  bar.setAttribute('height', yBot - yTop + 14);
-  bar.setAttribute('rx', hw);
-  fb.svg.insertBefore(bar, fb.dotsLayer);
 }
 
 // Every C-major note the 5 boxes cover — "the whole scale at once".
@@ -207,26 +176,23 @@ export function initScaleShapes(container) {
       dots: fullScaleDots,
     },
     ...CAGED_BOXES.map((shape, i) => {
-      const barre = barreInfo(shape);
       const intro =
         shape === 'C'
-          ? `The <strong>ringed</strong> notes are the <strong>C chord</strong>
+          ? `The notes that <strong>flash</strong> are the <strong>C chord</strong>
              finger shape — your open C grip (<code>${OPEN_CHORDS.C.tab}</code>),
              right at the nut.`
-          : `The <strong>ringed</strong> notes are your open <strong>${shape}</strong>
-             grip (<code>${OPEN_CHORDS[shape].tab}</code>) <strong>${BARRE_NOTE[shape]}</strong>
-             to make a C — the open-chord finger shape, moved up.${
-               barre ? ' The shaded bar is your index-finger <strong>barre</strong>.' : ''
-             }`;
+          : `The notes that <strong>flash</strong> are your open
+             <strong>${shape}</strong> grip (<code>${OPEN_CHORDS[shape].tab}</code>)
+             <strong>${MOVED_NOTE[shape]}</strong> to make a C — the open-chord finger
+             shape, moved up.`;
       const extra =
         shape === 'E'
-          ? ' (An F barre chord is this exact shape at the 1st fret.) Most useful shape — root on the low-E string.'
+          ? ' (It’s the shape behind an F barre chord.) Most useful one — root on the low-E string.'
           : '';
       return {
         title: `Shape ${i + 1} of 5 — the ${shape} shape`,
         body: `${intro} The faint dots are the rest of the C-major scale around it.${extra}`,
         dots: () => gripBoxDots(shape),
-        barre,
       };
     }),
     {
@@ -248,7 +214,6 @@ export function initScaleShapes(container) {
         neck. Want other keys? Every shape is movable — try them in the
         <strong>CAGED Shapes</strong> tab.`,
       dots: () => gripBoxDots('E'),
-      barre: barreInfo('E'),
     },
   ];
 
@@ -293,7 +258,6 @@ export function initScaleShapes(container) {
 
     const dots = step.dots();
     const fb = makeFretboard(boardEl, { fretCount: Math.max(5, maxFretOf(dots) + 1) });
-    if (step.barre) drawBarre(fb, step.barre);
     renderDots(fb, dots, { stagger: 22 });
 
     barEl.style.width = `${((i + 1) / STEPS.length) * 100}%`;
