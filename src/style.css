@@ -538,6 +538,10 @@ button.ghost:active { transform: scale(0.98); }
 /* 5 Shapes tour: chord tones inside a box = teal; amber box vs teal box for the
    overlap step; outlined = shared between two boxes. */
 .fb-dot.is-chord { fill: var(--teal); stroke: #1f6f64; }
+/* Scale-only notes sit small + faint behind the haloed chord shape. */
+.fb-dot.is-scale { fill: var(--dot-default); stroke: rgba(255, 255, 255, 0.22); opacity: 0.5; }
+/* Halo ring marks the notes that form the underlying chord shape. */
+.fb-dot-ring { fill: none; stroke: #fff7ea; stroke-width: 2.5; opacity: 0.6; }
 .fb-dot.is-shape-a { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-shape-b { fill: var(--teal); stroke: #1f6f64; }
 .fb-dot.is-shared { fill: var(--amber); stroke: var(--teal); stroke-width: 3.5; }

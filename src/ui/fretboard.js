@@ -232,9 +232,12 @@ export function renderDots(fb, dots, { stagger = 0 } = {}) {
       continue;
     }
 
+    const radius = d.r ?? L.dotR;
     const group = el('g', { class: 'fb-dot-g' });
     if (stagger) group.style.animationDelay = `${added * stagger}ms`;
-    const dot = el('circle', { class: `fb-dot is-${d.status}`, cx, cy, r: L.dotR });
+    // Optional halo ring (e.g. to flag the chord shape inside a scale box).
+    if (d.ring) group.appendChild(el('circle', { class: 'fb-dot-ring', cx, cy, r: radius + 5 }));
+    const dot = el('circle', { class: `fb-dot is-${d.status}`, cx, cy, r: radius });
     const text = el('text', { class: 'fb-dot-label', x: cx, y: cy + 5 });
     text.textContent = d.label ?? '';
     group.appendChild(dot);

@@ -65,17 +65,21 @@ function movableDemoDots() {
   ];
 }
 
-// A scale box with its chord grip lit up: roots amber, the grip's other chord
-// tones teal, and the rest of the scale faint (graphite, unlabelled) around it.
+// A scale box with its chord grip lit up: the chord's notes are full-size,
+// haloed (a ring) and labelled — roots amber, other chord tones teal — so the
+// underlying chord SHAPE pops out. The rest of the scale sits behind it as
+// small, faint, unlabelled dots.
 function gripBoxDots(shape) {
   const grip = new Set(CHORD_GRIPS[shape].map(([s, f]) => `${s}:${f}`));
   return cagedBox(KEY, shape).map((p) => {
     const inGrip = grip.has(`${p.string}:${p.fret}`);
+    if (!inGrip) return { string: p.string, fret: p.fret, status: 'scale', label: '', r: 9 };
     return {
       string: p.string,
       fret: p.fret,
-      status: inGrip ? (p.degree === 1 ? 'root' : 'chord') : 'default',
-      label: inGrip ? p.note : '',
+      status: p.degree === 1 ? 'root' : 'chord',
+      label: p.note,
+      ring: true,
     };
   });
 }
