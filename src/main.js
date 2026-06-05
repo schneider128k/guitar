@@ -5,6 +5,7 @@ import { initFindNotes } from './views/findNotes.js';
 import { initNameNote } from './views/nameNote.js';
 import { initPlay } from './views/play.js';
 import { initOpenScales } from './views/openScales.js';
+import { initScaleShapes } from './views/scaleShapes.js';
 import { initCagedShapes } from './views/cagedShapes.js';
 
 const VIEWS = {
@@ -13,6 +14,7 @@ const VIEWS = {
   name: initNameNote,
   play: initPlay,
   open: initOpenScales,
+  shapes: initScaleShapes,
   caged: initCagedShapes,
 };
 

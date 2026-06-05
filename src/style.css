@@ -535,6 +535,10 @@ button.ghost:active { transform: scale(0.98); }
 .fb-dot.is-found { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-wrong { fill: var(--red); stroke: #a8362a; animation: shake 0.32s; }
 .fb-dot.is-highlight { fill: #36322c; stroke: var(--amber); stroke-width: 3; }
+/* Two-window overlap (5 Shapes tour): amber box, teal box, outlined = shared. */
+.fb-dot.is-shape-a { fill: var(--amber); stroke: var(--amber-deep); }
+.fb-dot.is-shape-b { fill: var(--teal); stroke: #1f6f64; }
+.fb-dot.is-shared { fill: var(--amber); stroke: var(--teal); stroke-width: 3.5; }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-2.5px); }
@@ -644,6 +648,53 @@ button.ghost:active { transform: scale(0.98); }
   letter-spacing: 0.06em;
   color: var(--ink-faint);
 }
+
+/* ===========================================================================
+   5 SHAPES — guided tour
+   ========================================================================= */
+.ss-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.6rem;
+}
+.ss-sub { margin: 0.2rem 0 0; color: var(--ink-soft); }
+.ss-step {
+  margin: 0.9rem 0 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+.ss-lesson-title {
+  margin: 0.1rem 0 0.8rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--amber-deep);
+  letter-spacing: -0.01em;
+}
+.ss-note {
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  font-size: 1.04rem;
+  line-height: 1.55;
+}
+.ss-note strong { color: var(--amber-deep); }
+.ss-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.3rem;
+}
+.ss-pips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; flex: 1; }
+.ss-nav .js-back:disabled { opacity: 0.4; cursor: default; }
 
 /* ===========================================================================
    HALF STEPS — quick theory primer

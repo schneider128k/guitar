@@ -9,5 +9,6 @@ smoke.mjs
 shot.mjs
 verify-accidentals.mjs
 verify-halfsteps.mjs
+verify-shapes.mjs
 art/render-hero.mjs
 *.png
