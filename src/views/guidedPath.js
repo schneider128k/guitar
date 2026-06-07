@@ -1,38 +1,73 @@
-// Guided Path — a structured curriculum that sequences Find-Note drills:
-// open position (to fret 5) first, then the full neck (to fret 12). Progress
-// and a daily streak persist in localStorage.
+// Guided Path — a structured curriculum that sequences the note drills:
+// naturals open position (to fret 5) first, then the full neck (to fret 12),
+// then the two root strings (for barre & power chords), then sharps & flats.
+// Each "Study every X" lesson runs a study (memorize) phase, then a quiz; the
+// "Random …" lessons are no-study recall marathons. Progress and a daily streak
+// persist in localStorage.
 import { createFindDrill } from '../drills/findDrill.js';
 import { createHalfStepsDrill } from '../drills/halfStepsDrill.js';
+import { createMarathonDrill } from '../drills/marathonDrill.js';
+import { ACCIDENTALS } from '../music.js';
+
+const NATURALS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+const S_THEORY = 'Music theory';
+const S_NAT_OPEN = 'Naturals · Open position (frets 0–5)';
+const S_NAT_NECK = 'Naturals · Full neck (frets 0–12)';
+const S_ROOTS = 'Root strings · E & A (barre & power chords)';
+const S_ACC_OPEN = 'Sharps & flats · Open position (frets 0–5)';
+const S_ACC_NECK = 'Sharps & flats · Full neck (frets 0–12)';
+const S_FINAL = 'Final exam · all 12 notes';
 
 const PATH = [
-  { id: 'th-half', type: 'halfsteps', title: 'Half steps between the notes', sub: 'Music theory · start here' },
-  { id: 'o-C', note: 'C', maxFret: 5, title: 'Find every C', sub: 'Open position · to fret 5' },
-  { id: 'o-G', note: 'G', maxFret: 5, title: 'Find every G', sub: 'Open position · to fret 5' },
-  { id: 'o-D', note: 'D', maxFret: 5, title: 'Find every D', sub: 'Open position · to fret 5' },
-  { id: 'o-A', note: 'A', maxFret: 5, title: 'Find every A', sub: 'Open position · to fret 5' },
-  { id: 'o-E', note: 'E', maxFret: 5, title: 'Find every E', sub: 'Open position · to fret 5' },
-  { id: 'o-F', note: 'F', maxFret: 5, title: 'Find every F', sub: 'Open position · to fret 5' },
-  { id: 'o-B', note: 'B', maxFret: 5, title: 'Find every B', sub: 'Open position · to fret 5' },
-  { id: 'o-R', note: 'random', maxFret: 5, title: 'Random naturals', sub: 'Open position · to fret 5' },
-  { id: 'n-C', note: 'C', maxFret: 12, title: 'Find every C', sub: 'Full neck · to fret 12' },
-  { id: 'n-G', note: 'G', maxFret: 12, title: 'Find every G', sub: 'Full neck · to fret 12' },
-  { id: 'n-E', note: 'E', maxFret: 12, title: 'Find every E', sub: 'Full neck · to fret 12' },
-  { id: 'n-A', note: 'A', maxFret: 12, title: 'Find every A', sub: 'Full neck · to fret 12' },
-  { id: 'n-R', note: 'random', maxFret: 12, title: 'Random naturals', sub: 'Full neck · to fret 12' },
-  // Follow-up: the 5 accidentals (each shown with both its sharp and flat name).
-  { id: 'a-Cs', note: 'C#', maxFret: 5, title: 'Find every C♯ / D♭', sub: 'Sharps & flats · to fret 5' },
-  { id: 'a-Ds', note: 'D#', maxFret: 5, title: 'Find every D♯ / E♭', sub: 'Sharps & flats · to fret 5' },
-  { id: 'a-Fs', note: 'F#', maxFret: 5, title: 'Find every F♯ / G♭', sub: 'Sharps & flats · to fret 5' },
-  { id: 'a-Gs', note: 'G#', maxFret: 5, title: 'Find every G♯ / A♭', sub: 'Sharps & flats · to fret 5' },
-  { id: 'a-As', note: 'A#', maxFret: 5, title: 'Find every A♯ / B♭', sub: 'Sharps & flats · to fret 5' },
-  { id: 'a-R', note: 'random-accidental', maxFret: 5, title: 'Random sharps & flats', sub: 'Sharps & flats · to fret 5' },
+  { id: 'th-half', type: 'halfsteps', section: S_THEORY, title: 'Half steps between the notes', sub: 'Start here' },
+
+  // Naturals in open position — study each, then quiz.
+  { id: 'o-C', note: 'C', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every C', sub: 'Memorize, then quiz' },
+  { id: 'o-G', note: 'G', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every G', sub: 'Memorize, then quiz' },
+  { id: 'o-D', note: 'D', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every D', sub: 'Memorize, then quiz' },
+  { id: 'o-A', note: 'A', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every A', sub: 'Memorize, then quiz' },
+  { id: 'o-E', note: 'E', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every E', sub: 'Memorize, then quiz' },
+  { id: 'o-F', note: 'F', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every F', sub: 'Memorize, then quiz' },
+  { id: 'o-B', note: 'B', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every B', sub: 'Memorize, then quiz' },
+  { id: 'o-R', marathon: true, pool: 'naturals', maxFret: 5, section: S_NAT_OPEN, title: 'Quiz all naturals', sub: 'Exam mode — recall every note until you stop' },
+
+  // The same naturals across the whole neck.
+  { id: 'n-C', note: 'C', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every C', sub: 'Memorize, then quiz' },
+  { id: 'n-G', note: 'G', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every G', sub: 'Memorize, then quiz' },
+  { id: 'n-D', note: 'D', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every D', sub: 'Memorize, then quiz' },
+  { id: 'n-A', note: 'A', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every A', sub: 'Memorize, then quiz' },
+  { id: 'n-E', note: 'E', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every E', sub: 'Memorize, then quiz' },
+  { id: 'n-F', note: 'F', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every F', sub: 'Memorize, then quiz' },
+  { id: 'n-B', note: 'B', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every B', sub: 'Memorize, then quiz' },
+  { id: 'n-R', marathon: true, pool: 'naturals', maxFret: 12, section: S_NAT_NECK, title: 'Quiz all naturals', sub: 'Exam mode — recall every note until you stop' },
+
+  // The two root strings — knowing these cold is what lets you place barre and
+  // power chords anywhere on the neck.
+  { id: 'r-E6', marathon: true, pool: 'naturals', maxFret: 12, strings: [6], stringsLabel: 'low E string (6th)', study: true, section: S_ROOTS, title: 'Memorize every natural on the low E string', sub: '6th string · study, then quiz · frets 0–12' },
+  { id: 'r-A5', marathon: true, pool: 'naturals', maxFret: 12, strings: [5], stringsLabel: 'A string (5th)', study: true, section: S_ROOTS, title: 'Memorize every natural on the A string', sub: '5th string · study, then quiz · frets 0–12' },
+  { id: 'r-R', marathon: true, pool: 'naturals', maxFret: 12, strings: [6, 5], stringsLabel: 'E & A strings', section: S_ROOTS, title: 'Quiz all naturals on the E & A strings', sub: 'Exam mode — quiz only, recall until you stop' },
+
+  // The 5 accidentals (each shown with both its sharp and flat name).
+  { id: 'a-Cs', note: 'C#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every C♯ / D♭', sub: 'Memorize, then quiz' },
+  { id: 'a-Ds', note: 'D#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every D♯ / E♭', sub: 'Memorize, then quiz' },
+  { id: 'a-Fs', note: 'F#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every F♯ / G♭', sub: 'Memorize, then quiz' },
+  { id: 'a-Gs', note: 'G#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every G♯ / A♭', sub: 'Memorize, then quiz' },
+  { id: 'a-As', note: 'A#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every A♯ / B♭', sub: 'Memorize, then quiz' },
+  { id: 'a-R', marathon: true, pool: 'accidentals', maxFret: 5, section: S_ACC_OPEN, title: 'Quiz all sharps & flats', sub: 'Exam mode — recall every note until you stop' },
+
   // Sharps & flats across the whole neck.
-  { id: 'an-Cs', note: 'C#', maxFret: 12, title: 'Find every C♯ / D♭', sub: 'Sharps & flats · to fret 12' },
-  { id: 'an-Ds', note: 'D#', maxFret: 12, title: 'Find every D♯ / E♭', sub: 'Sharps & flats · to fret 12' },
-  { id: 'an-Fs', note: 'F#', maxFret: 12, title: 'Find every F♯ / G♭', sub: 'Sharps & flats · to fret 12' },
-  { id: 'an-Gs', note: 'G#', maxFret: 12, title: 'Find every G♯ / A♭', sub: 'Sharps & flats · to fret 12' },
-  { id: 'an-As', note: 'A#', maxFret: 12, title: 'Find every A♯ / B♭', sub: 'Sharps & flats · to fret 12' },
-  { id: 'an-R', note: 'random-accidental', maxFret: 12, title: 'Random sharps & flats', sub: 'Sharps & flats · to fret 12' },
+  { id: 'an-Cs', note: 'C#', maxFret: 12, section: S_ACC_NECK, title: 'Memorize every C♯ / D♭', sub: 'Memorize, then quiz' },
+  { id: 'an-Ds', note: 'D#', maxFret: 12, section: S_ACC_NECK, title: 'Memorize every D♯ / E♭', sub: 'Memorize, then quiz' },
+  { id: 'an-Fs', note: 'F#', maxFret: 12, section: S_ACC_NECK, title: 'Memorize every F♯ / G♭', sub: 'Memorize, then quiz' },
+  { id: 'an-Gs', note: 'G#', maxFret: 12, section: S_ACC_NECK, title: 'Memorize every G♯ / A♭', sub: 'Memorize, then quiz' },
+  { id: 'an-As', note: 'A#', maxFret: 12, section: S_ACC_NECK, title: 'Memorize every A♯ / B♭', sub: 'Memorize, then quiz' },
+  { id: 'an-R', marathon: true, pool: 'accidentals', maxFret: 12, section: S_ACC_NECK, title: 'Quiz all sharps & flats', sub: 'Exam mode — recall every note until you stop' },
+
+  // The capstone — every note, naturals and accidentals together. Staged the
+  // same way as the rest of the path: open position first, then the full neck.
+  { id: 'final-5', marathon: true, pool: 'all', maxFret: 5, section: S_FINAL, title: '🎓 The ultimate test — to fret 5', sub: 'Every natural, sharp & flat in open position · recall until you stop' },
+  { id: 'final-12', marathon: true, pool: 'all', maxFret: 12, section: S_FINAL, title: '🏆 The ultimate test — full neck', sub: 'Every natural, sharp & flat to fret 12 · recall until you stop' },
 ];
 
 const KEY_DONE = 'gp.completed';
@@ -84,7 +119,7 @@ export function initGuidedPath(container) {
         <div class="gp-head">
           <div>
             <h2 class="gp-title">Your path</h2>
-            <p class="gp-sub">Start with how the notes are spaced, then learn the naturals — open position, then the whole neck — and finally the sharps &amp; flats.</p>
+            <p class="gp-sub">Start with how the notes are spaced, then learn the naturals — open position, then the whole neck — lock in the E &amp; A root strings for barre &amp; power chords, then the sharps &amp; flats — and finish with the ultimate test. Jump in anywhere.</p>
           </div>
           ${streakLine}
         </div>
@@ -96,7 +131,7 @@ export function initGuidedPath(container) {
             : ''
         }
         <ol class="gp-list">
-          ${PATH.map((l, i) => lessonRow(l, i, cur)).join('')}
+          ${renderRows(cur)}
         </ol>
       </section>`;
 
@@ -108,17 +143,28 @@ export function initGuidedPath(container) {
     );
   }
 
+  // Walk the path, emitting a section header whenever the section changes.
+  // Every lesson is open — no locking — so the student can jump in anywhere.
+  function renderRows(cur) {
+    let lastSection = null;
+    return PATH.map((l, i) => {
+      let header = '';
+      if (l.section !== lastSection) {
+        header = `<li class="gp-section">${l.section}</li>`;
+        lastSection = l.section;
+      }
+      return header + lessonRow(l, i, cur);
+    }).join('');
+  }
+
   function lessonRow(l, i, cur) {
     const isDone = completed.has(l.id);
     const isCurrent = i === cur;
-    const locked = i > cur;
     const star = stars.has(l.id) ? '⭐' : '✓';
-    const cls = isDone ? 'done' : isCurrent ? 'current' : 'locked';
-    const action = isCurrent
-      ? `<button class="primary gp-start" data-i="${i}">Start</button>`
-      : isDone
-        ? `<button class="ghost gp-redo" data-i="${i}">Redo</button>`
-        : `<span class="gp-lock">🔒</span>`;
+    const cls = isDone ? 'done' : isCurrent ? 'current' : '';
+    const action = isDone
+      ? `<button class="ghost gp-redo" data-i="${i}">Redo</button>`
+      : `<button class="primary gp-start" data-i="${i}">Start</button>`;
     const mark = isDone ? `<span class="gp-mark">${star}</span>` : `<span class="gp-num">${i + 1}</span>`;
     return `
       <li class="gp-item ${cls}">
@@ -136,7 +182,7 @@ export function initGuidedPath(container) {
     container.innerHTML = `
       <section class="view gp-active">
         <button class="ghost gp-back">← Path</button>
-        <p class="gp-lesson-label">Lesson ${i + 1} of ${PATH.length} · ${lesson.sub}</p>
+        <p class="gp-lesson-label">Lesson ${i + 1} of ${PATH.length} · ${lesson.section}</p>
         <div class="gp-drill"></div>
       </section>`;
     container.querySelector('.gp-back').addEventListener('click', renderList);
@@ -152,6 +198,22 @@ export function initGuidedPath(container) {
 
     if (lesson.type === 'halfsteps') {
       createHalfStepsDrill(drillEl, { onComplete, onContinue: renderList });
+    } else if (lesson.marathon) {
+      const pool =
+        lesson.pool === 'naturals'
+          ? NATURALS
+          : lesson.pool === 'accidentals'
+            ? ACCIDENTALS
+            : [...NATURALS, ...ACCIDENTALS]; // 'all' — the ultimate test
+      createMarathonDrill(drillEl, {
+        pool,
+        maxFret: lesson.maxFret,
+        strings: lesson.strings,
+        stringsLabel: lesson.stringsLabel,
+        study: lesson.study,
+        onComplete,
+        onStop: renderList,
+      });
     } else {
       createFindDrill(drillEl, {
         note: lesson.note,

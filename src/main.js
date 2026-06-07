@@ -69,6 +69,28 @@ try {
 } catch {}
 applySkin(savedSkin);
 
+// Hide string names — a no-hints recall mode that drops the open-string tuning
+// letters from every fretboard. Remembered across visits.
+const tuningToggle = document.getElementById('toggle-tuning');
+if (tuningToggle) {
+  function applyHideTuning(hidden) {
+    document.body.classList.toggle('hide-tuning', hidden);
+    tuningToggle.setAttribute('aria-pressed', String(hidden));
+    tuningToggle.textContent = hidden ? 'Show string names' : 'Hide string names';
+    try {
+      localStorage.setItem('hideTuning', hidden ? '1' : '0');
+    } catch {}
+  }
+  let hideTuning = false;
+  try {
+    hideTuning = localStorage.getItem('hideTuning') === '1';
+  } catch {}
+  applyHideTuning(hideTuning);
+  tuningToggle.addEventListener('click', () =>
+    applyHideTuning(!document.body.classList.contains('hide-tuning')),
+  );
+}
+
 // Splash: show the key art for a few seconds, then reveal the app (click skips).
 const splash = document.getElementById('splash');
 if (splash) {
