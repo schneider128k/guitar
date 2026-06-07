@@ -32,7 +32,14 @@ const PATH = [
   { id: 'o-B', note: 'B', maxFret: 5, section: S_NAT_OPEN, title: 'Memorize every B', sub: 'Memorize, then quiz' },
   { id: 'o-R', marathon: true, pool: 'naturals', maxFret: 5, section: S_NAT_OPEN, title: 'Quiz all naturals', sub: 'Exam mode — recall every note until you stop' },
 
-  // The same naturals across the whole neck.
+  // The two root strings, across the whole neck — a focused ramp from open
+  // position to the full neck (just 2 strings before all 6). Knowing these cold
+  // is what lets you place barre and power chords anywhere on the neck.
+  { id: 'r-E6', marathon: true, pool: 'naturals', maxFret: 12, strings: [6], stringsLabel: 'low E string (6th)', study: true, section: S_ROOTS, title: 'Memorize every natural on the low E string', sub: '6th string · study, then quiz · frets 0–12' },
+  { id: 'r-A5', marathon: true, pool: 'naturals', maxFret: 12, strings: [5], stringsLabel: 'A string (5th)', study: true, section: S_ROOTS, title: 'Memorize every natural on the A string', sub: '5th string · study, then quiz · frets 0–12' },
+  { id: 'r-R', marathon: true, pool: 'naturals', maxFret: 12, strings: [6, 5], stringsLabel: 'E & A strings', section: S_ROOTS, title: 'Quiz all naturals on the E & A strings', sub: 'Exam mode — quiz only, recall until you stop' },
+
+  // The same naturals across the whole neck — now all six strings.
   { id: 'n-C', note: 'C', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every C', sub: 'Memorize, then quiz' },
   { id: 'n-G', note: 'G', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every G', sub: 'Memorize, then quiz' },
   { id: 'n-D', note: 'D', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every D', sub: 'Memorize, then quiz' },
@@ -41,12 +48,6 @@ const PATH = [
   { id: 'n-F', note: 'F', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every F', sub: 'Memorize, then quiz' },
   { id: 'n-B', note: 'B', maxFret: 12, section: S_NAT_NECK, title: 'Memorize every B', sub: 'Memorize, then quiz' },
   { id: 'n-R', marathon: true, pool: 'naturals', maxFret: 12, section: S_NAT_NECK, title: 'Quiz all naturals', sub: 'Exam mode — recall every note until you stop' },
-
-  // The two root strings — knowing these cold is what lets you place barre and
-  // power chords anywhere on the neck.
-  { id: 'r-E6', marathon: true, pool: 'naturals', maxFret: 12, strings: [6], stringsLabel: 'low E string (6th)', study: true, section: S_ROOTS, title: 'Memorize every natural on the low E string', sub: '6th string · study, then quiz · frets 0–12' },
-  { id: 'r-A5', marathon: true, pool: 'naturals', maxFret: 12, strings: [5], stringsLabel: 'A string (5th)', study: true, section: S_ROOTS, title: 'Memorize every natural on the A string', sub: '5th string · study, then quiz · frets 0–12' },
-  { id: 'r-R', marathon: true, pool: 'naturals', maxFret: 12, strings: [6, 5], stringsLabel: 'E & A strings', section: S_ROOTS, title: 'Quiz all naturals on the E & A strings', sub: 'Exam mode — quiz only, recall until you stop' },
 
   // The 5 accidentals (each shown with both its sharp and flat name).
   { id: 'a-Cs', note: 'C#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every C♯ / D♭', sub: 'Memorize, then quiz' },
