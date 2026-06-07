@@ -14,8 +14,9 @@ const NATURALS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const S_THEORY = 'Music theory';
 const S_NAT_OPEN = 'Naturals · Open position (frets 0–5)';
 const S_NAT_NECK = 'Naturals · Full neck (frets 0–12)';
-const S_ROOTS = 'Root strings · E & A (barre & power chords)';
+const S_ROOTS = 'Root strings · E & A · naturals (barre & power chords)';
 const S_ACC_OPEN = 'Sharps & flats · Open position (frets 0–5)';
+const S_ROOTS_ACC = 'Root strings · E & A · sharps & flats (barre & power chords)';
 const S_ACC_NECK = 'Sharps & flats · Full neck (frets 0–12)';
 const S_FINAL = 'Final exam · all 12 notes';
 
@@ -56,6 +57,12 @@ const PATH = [
   { id: 'a-Gs', note: 'G#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every G♯ / A♭', sub: 'Memorize, then quiz' },
   { id: 'a-As', note: 'A#', maxFret: 5, section: S_ACC_OPEN, title: 'Memorize every A♯ / B♭', sub: 'Memorize, then quiz' },
   { id: 'a-R', marathon: true, pool: 'accidentals', maxFret: 5, section: S_ACC_OPEN, title: 'Quiz all sharps & flats', sub: 'Exam mode — recall every note until you stop' },
+
+  // Same ramp as the naturals: the accidentals on the two root strings, where
+  // sharp/flat barre & power chords (F♯5, B♭, E♭, …) take their roots.
+  { id: 'ra-E6', marathon: true, pool: 'accidentals', maxFret: 12, strings: [6], stringsLabel: 'low E string (6th)', study: true, section: S_ROOTS_ACC, title: 'Memorize the sharps & flats on the low E string', sub: '6th string · study, then quiz · frets 0–12' },
+  { id: 'ra-A5', marathon: true, pool: 'accidentals', maxFret: 12, strings: [5], stringsLabel: 'A string (5th)', study: true, section: S_ROOTS_ACC, title: 'Memorize the sharps & flats on the A string', sub: '5th string · study, then quiz · frets 0–12' },
+  { id: 'ra-R', marathon: true, pool: 'accidentals', maxFret: 12, strings: [6, 5], stringsLabel: 'E & A strings', section: S_ROOTS_ACC, title: 'Quiz all sharps & flats on the E & A strings', sub: 'Exam mode — quiz only, recall until you stop' },
 
   // Sharps & flats across the whole neck.
   { id: 'an-Cs', note: 'C#', maxFret: 12, section: S_ACC_NECK, title: 'Memorize every C♯ / D♭', sub: 'Memorize, then quiz' },
