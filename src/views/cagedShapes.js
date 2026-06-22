@@ -1,5 +1,6 @@
 // CAGED Shapes explorer: pick a key + one of the 5 movable shapes, see the box.
 import { makeFretboard, renderDots } from '../ui/fretboard.js';
+import { createMarathonDrill } from '../drills/marathonDrill.js';
 import { cagedBox, CAGED_BOXES, NOTE_NAMES } from '../music.js';
 
 export function initCagedShapes(container) {
@@ -15,10 +16,14 @@ export function initCagedShapes(container) {
           <input type="checkbox" id="cg-degrees" /> Show degrees
         </label>
       </div>
-      <h3 id="cg-title" class="scale-title"></h3>
-      <div id="cg-board" class="board"></div>
-      <p class="hint">The 5 CAGED shapes are movable: the same fingering pattern
-        slides up the neck to play the scale in any key.</p>
+      <div id="cg-view">
+        <h3 id="cg-title" class="scale-title"></h3>
+        <div id="cg-board" class="board"></div>
+        <p class="hint">The 5 CAGED shapes are movable: the same fingering pattern
+          slides up the neck to play the scale in any key.</p>
+        <button class="choice" id="cg-quiz-start" type="button">🎯 Quiz me on this shape</button>
+      </div>
+      <div id="cg-quiz" style="display:none"></div>
     </section>`;
 
   const keySel = container.querySelector('#cg-key');
@@ -30,6 +35,9 @@ export function initCagedShapes(container) {
   const titleEl = container.querySelector('#cg-title');
   const boardEl = container.querySelector('#cg-board');
   const degreesChk = container.querySelector('#cg-degrees');
+  const viewEl = container.querySelector('#cg-view');
+  const quizEl = container.querySelector('#cg-quiz');
+  const quizStartBtn = container.querySelector('#cg-quiz-start');
 
   let shape = 'C';
 
@@ -55,6 +63,24 @@ export function initCagedShapes(container) {
     );
   }
 
+  function startQuiz() {
+    const key = keySel.value;
+    const box = cagedBox(key, shape);
+    const pool = [...new Set(box.sort((a, b) => a.degree - b.degree).map((p) => p.note))];
+    viewEl.style.display = 'none';
+    quizEl.style.display = 'block';
+    createMarathonDrill(quizEl, {
+      pool,
+      positions: box.map((p) => ({ string: p.string, fret: p.fret })),
+      study: true,
+      onStop: () => {
+        quizEl.style.display = 'none';
+        viewEl.style.display = 'block';
+        show();
+      },
+    });
+  }
+
   for (const letter of CAGED_BOXES) {
     const btn = document.createElement('button');
     btn.className = 'choice';
@@ -69,5 +95,6 @@ export function initCagedShapes(container) {
 
   keySel.addEventListener('change', show);
   degreesChk.addEventListener('change', show);
+  quizStartBtn.addEventListener('click', startQuiz);
   show();
 }

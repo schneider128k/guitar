@@ -11,10 +11,14 @@
 //
 // opts:
 //   pool         : array of note names to draw from (naturals or accidentals)
-//   maxFret      : number
+//   maxFret      : number (ignored when `positions` is given — derived from it instead)
 //   strings      : optional array of string numbers to restrict to (e.g. [6] low E,
 //                  [5] A, [6, 5] both). Clicks off these strings are ignored.
 //   stringsLabel : optional human label for the restriction (e.g. 'low E string')
+//   positions    : optional explicit [{string,fret}] to restrict to instead of
+//                  strings/maxFret — e.g. one CAGED box's note positions, so the
+//                  student practices "find this note inside this shape" rather
+//                  than anywhere on the neck.
 //   study        : optional — show a "memorize the whole map" screen before quizzing
 //   onComplete(result) : called once, when the first full round is finished {perfect}
 //   onStop()           : "Stop — back to path" handler
@@ -33,7 +37,8 @@ const posKey = (p) => `${p.string}:${p.fret}`;
 
 export function createMarathonDrill(container, opts = {}) {
   const pool = opts.pool;
-  const maxFret = opts.maxFret;
+  const positions = opts.positions || null;
+  const maxFret = positions ? Math.max(...positions.map((p) => p.fret)) : opts.maxFret;
   const strings = opts.strings || null;
   const onText = opts.stringsLabel ? ` on the <span class="hl">${opts.stringsLabel}</span>` : '';
 
@@ -96,6 +101,10 @@ export function createMarathonDrill(container, opts = {}) {
   }
 
   function targetsFor(note) {
+    if (positions) {
+      const chroma = chromaOf(toSharp(note));
+      return positions.filter((p) => noteAt(p.string, p.fret).chroma === chroma);
+    }
     let t = findPositions(note, maxFret);
     if (strings) t = t.filter((p) => strings.includes(p.string));
     return t;
@@ -182,7 +191,8 @@ export function createMarathonDrill(container, opts = {}) {
     if (phase !== 'quiz' || !state || advancing || stopped) return;
     const { string, fret } = pos;
     if (fret > maxFret) return;
-    if (strings && !strings.includes(string)) return;
+    if (positions && !positions.some((p) => p.string === string && p.fret === fret)) return;
+    if (!positions && strings && !strings.includes(string)) return;
     const key = posKey({ string, fret });
     const hit = noteAt(string, fret).chroma === state.chroma;
 

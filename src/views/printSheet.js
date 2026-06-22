@@ -19,18 +19,18 @@ export function initPrintSheet(container) {
       </div>
       <p class="hint no-print">Pick a key and shape, then print (or "Save as PDF" on iPad
         Safari) and mark it up by hand. Ascending and descending each get a numbered staff —
-        write the string and fret for each note underneath. The fretboard box is blank — write
-        the note name inside each circle; dashed circles are the one or two notes just outside
-        the box that connect to the next shape.</p>
+        write the note name below each one (that's the reading practice). The fretboard box is
+        blank — write the note name inside each circle (that's the fretboard practice); dashed
+        circles are the one or two notes just outside the box that connect to the next shape.</p>
 
       <div class="worksheet">
         <h3 id="ps-title" class="scale-title"></h3>
 
-        <h4 class="sub">Ascending — write string &amp; fret for each note</h4>
+        <h4 class="sub">Ascending — write the note name below each one</h4>
         <div id="ps-asc" class="notation"></div>
         <div id="ps-asc-blanks" class="ps-blanks"></div>
 
-        <h4 class="sub">Descending — write string &amp; fret for each note</h4>
+        <h4 class="sub">Descending — write the note name below each one</h4>
         <div id="ps-desc" class="notation"></div>
         <div id="ps-desc-blanks" class="ps-blanks"></div>
 
@@ -56,9 +56,7 @@ export function initPrintSheet(container) {
   let shape = 'A';
 
   function blanksRow(seq) {
-    return seq
-      .map((n, i) => `<span class="ps-blank"><b>${i + 1}.</b> ____ string, fret ____</span>`)
-      .join('');
+    return seq.map((n, i) => `<span class="ps-blank"><b>${i + 1}.</b> ______</span>`).join('');
   }
 
   function show() {

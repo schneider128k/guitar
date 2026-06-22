@@ -983,4 +983,12 @@ button.ghost:active { transform: scale(0.98); }
   .notation { overflow: visible; border: none; box-shadow: none; padding: 0; }
   .sub { page-break-after: avoid; }
   .board { page-break-inside: avoid; }
+  /* Toner-friendly fretboard: ditch the dark neck fill regardless of skin —
+     outline only, like a printed chord-box diagram. */
+  .fb-board { fill: #fff !important; stroke: #2c2925 !important; stroke-width: 1.5 !important; }
+  .fb-nut { fill: #fff !important; stroke: #2c2925; stroke-width: 1.5; }
+  .fb-inlay { fill: #ddd !important; }
+  .fb-string { stroke: #999 !important; }
+  .fb-fret { stroke: #2c2925 !important; }
+  .fb-fretnum, .fb-tuning { fill: #2c2925 !important; }
 }
