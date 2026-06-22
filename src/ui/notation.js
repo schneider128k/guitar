@@ -8,7 +8,22 @@ import {
   Voice,
   Formatter,
   Accidental,
+  Annotation,
 } from 'vexflow';
+
+function buildStaveNotes(notes, { annotate } = {}) {
+  return notes.map((n, i) => {
+    const letter = n.note[0].toLowerCase();
+    const acc = n.note.length > 1 ? n.note.slice(1) : null;
+    const sn = new StaveNote({
+      keys: [`${letter}${acc ?? ''}/${n.octave}`],
+      duration: 'q',
+    });
+    if (acc) sn.addModifier(new Accidental(acc), 0);
+    if (annotate) sn.addModifier(new Annotation(String(i + 1)).setVerticalJustification(3), 0);
+    return sn;
+  });
+}
 
 /**
  * notes: [{ string, fret, note ('F#'), octave }]
@@ -27,16 +42,7 @@ export function renderNotation(el, notes) {
   const tab = new TabStave(10, 120, width - 20).addClef('tab');
   tab.setContext(ctx).draw();
 
-  const staveNotes = notes.map((n) => {
-    const letter = n.note[0].toLowerCase();
-    const acc = n.note.length > 1 ? n.note.slice(1) : null;
-    const sn = new StaveNote({
-      keys: [`${letter}${acc ?? ''}/${n.octave}`],
-      duration: 'q',
-    });
-    if (acc) sn.addModifier(new Accidental(acc), 0);
-    return sn;
-  });
+  const staveNotes = buildStaveNotes(notes);
 
   const tabNotes = notes.map(
     (n) => new TabNote({ positions: [{ str: n.string, fret: n.fret }], duration: 'q' }),
@@ -54,4 +60,28 @@ export function renderNotation(el, notes) {
   new Formatter().joinVoices([voice]).joinVoices([tabVoice]).format([voice, tabVoice], width - 80);
   voice.draw(ctx, stave);
   tabVoice.draw(ctx, tab);
+}
+
+/**
+ * Standard notation ONLY (no TAB, so the fret/string answer isn't given
+ * away) with a small index number above each note, for worksheets where the
+ * student writes the string/fret themselves. notes: [{ note, octave }].
+ */
+export function renderStaffOnly(el, notes) {
+  el.innerHTML = '';
+  const width = 70 + notes.length * 46;
+  const renderer = new Renderer(el, Renderer.Backends.SVG);
+  renderer.resize(width, 140);
+  const ctx = renderer.getContext();
+
+  const stave = new Stave(10, 10, width - 20).addClef('treble');
+  stave.setContext(ctx).draw();
+
+  const staveNotes = buildStaveNotes(notes, { annotate: true });
+  const voice = new Voice({ numBeats: notes.length, beatValue: 4 }).setStrict(false);
+  voice.addTickables(staveNotes);
+
+  new Formatter().joinVoices([voice]).format([voice], width - 80);
+  voice.draw(ctx, stave);
+  return renderer;
 }

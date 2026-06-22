@@ -568,6 +568,9 @@ button.ghost:active { transform: scale(0.98); }
   overflow-x: auto;
   box-shadow: var(--shadow-sm);
 }
+/* Worksheet staves: scale to fit the container/page width instead of
+   scrolling or clipping (matters for print, where there's no scrollbar). */
+.worksheet .notation svg { width: 100%; height: auto; display: block; }
 
 /* ===========================================================================
    FRETBOARD SVG
@@ -624,6 +627,11 @@ button.ghost:active { transform: scale(0.98); }
 .fb-dot.is-shape-a { fill: var(--amber); stroke: var(--amber-deep); }
 .fb-dot.is-shape-b { fill: var(--teal); stroke: #1f6f64; }
 .fb-dot.is-shared { fill: var(--amber); stroke: var(--teal); stroke-width: 3.5; }
+/* Print Sheet: hollow circles meant to be hand-labelled. is-blank = inside
+   the box; is-extra = the reach-just-outside-the-box note, dashed so it
+   reads as "extra" rather than a core box tone. */
+.fb-dot.is-blank { fill: #fffdf8; stroke: #3d372f; stroke-width: 2; }
+.fb-dot.is-extra { fill: #fffdf8; stroke: #3d372f; stroke-width: 2; stroke-dasharray: 4 3; }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-2.5px); }
@@ -951,4 +959,28 @@ button.ghost:active { transform: scale(0.98); }
   .fn-hero { flex-direction: column; align-items: flex-start; }
   .fn-badge { width: 60px; height: 60px; font-size: 1.9rem; }
   .fn-prompt h2 { font-size: 1.45rem; }
+}
+
+/* ===========================================================================
+   PRINT SHEET
+   ========================================================================= */
+.worksheet {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.2rem 1.4rem;
+  box-shadow: var(--shadow-sm);
+}
+.ps-blanks { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; margin: 0.4rem 0 1.4rem; }
+.ps-blank { font-size: 0.88rem; color: var(--ink-soft); }
+.ps-blank b { color: var(--ink); }
+
+@media print {
+  .grain, #splash, .site-header, .epigraph, #tabs, .skins, .boardopts,
+  .site-footer, .no-print { display: none !important; }
+  body { background: #fff; }
+  .worksheet { box-shadow: none; border: none; padding: 0; }
+  .notation { overflow: visible; border: none; box-shadow: none; padding: 0; }
+  .sub { page-break-after: avoid; }
+  .board { page-break-inside: avoid; }
 }

@@ -7,6 +7,7 @@ import { initPlay } from './views/play.js';
 import { initOpenScales } from './views/openScales.js';
 import { initScaleShapes } from './views/scaleShapes.js';
 import { initCagedShapes } from './views/cagedShapes.js';
+import { initPrintSheet } from './views/printSheet.js';
 
 const VIEWS = {
   guided: initGuidedPath,
@@ -16,6 +17,7 @@ const VIEWS = {
   open: initOpenScales,
   shapes: initScaleShapes,
   caged: initCagedShapes,
+  print: initPrintSheet,
 };
 
 const app = document.getElementById('app');

@@ -70,6 +70,52 @@ export function cagedBox(root, boxLetter) {
 
 export const CAGED_BOXES = ['C', 'A', 'G', 'E', 'D'];
 
+const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
+
+/** Pitch-class set (chroma numbers) of a major scale, e.g. 'C' -> {0,2,4,5,7,9,11}. */
+export function majorScaleChromas(root) {
+  const rootChroma = chromaOf(root);
+  return new Set(MAJOR_STEPS.map((step) => (rootChroma + step) % 12));
+}
+
+/**
+ * The full playable scale line for one CAGED box: every box note plus the
+ * one-fret extension on each side of the box that's still a scale tone (the
+ * "reach for it, you already know it" notes just outside the box), merged,
+ * deduped by pitch (box position preferred over extension), sorted low to
+ * high. Each entry: { string, fret, note, octave, degree, extension }.
+ */
+export function boxScaleSequence(root, boxLetter) {
+  const box = cagedBox(root, boxLetter);
+  const scaleChromas = majorScaleChromas(root);
+  const minFret = Math.min(...box.map((p) => p.fret));
+  const maxFret = Math.max(...box.map((p) => p.fret));
+
+  const byPitch = new Map(); // pitch -> entry, box entries inserted first so they win
+  const pitchOf = (string, fret) => {
+    const n = noteAt(string, fret);
+    return { pitch: n.octave * 12 + n.chroma, note: n.note, octave: n.octave };
+  };
+
+  for (const p of box) {
+    const { pitch, note, octave } = pitchOf(p.string, p.fret);
+    byPitch.set(pitch, { string: p.string, fret: p.fret, note, octave, degree: p.degree, extension: false });
+  }
+  for (const string of STRINGS) {
+    for (const fret of [minFret - 1, maxFret + 1]) {
+      if (fret < 0) continue;
+      const n = noteAt(string, fret);
+      if (!scaleChromas.has(n.chroma)) continue;
+      const { pitch, note, octave } = pitchOf(string, fret);
+      if (!byPitch.has(pitch)) {
+        byPitch.set(pitch, { string, fret, note, octave, degree: null, extension: true });
+      }
+    }
+  }
+
+  return [...byPitch.entries()].sort((a, b) => a[0] - b[0]).map(([, entry]) => entry);
+}
+
 /** Deterministic-ish helpers ------------------------------------------------ */
 export function randomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
