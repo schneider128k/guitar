@@ -18,21 +18,19 @@ export function initPrintSheet(container) {
         <button class="choice" id="ps-print" type="button">🖨️ Print / Save as PDF</button>
       </div>
       <p class="hint no-print">Pick a key and shape, then print (or "Save as PDF" on iPad
-        Safari) and mark it up by hand. Ascending and descending each get a numbered staff —
-        write the note name below each one (that's the reading practice). The fretboard box is
-        blank — write the note name inside each circle (that's the fretboard practice); dashed
-        circles are the one or two notes just outside the box that connect to the next shape.</p>
+        Safari) and mark it up by hand. Write the note name directly below each note on the
+        staff (that's the reading practice). The fretboard box is blank — write the note name
+        inside each circle (that's the fretboard practice); dashed circles are the one or two
+        notes just outside the box that connect to the next shape.</p>
 
       <div class="worksheet">
         <h3 id="ps-title" class="scale-title"></h3>
 
-        <h4 class="sub">Ascending — write the note name below each one</h4>
+        <h4 class="sub">Ascending — write the note name below each note</h4>
         <div id="ps-asc" class="notation"></div>
-        <div id="ps-asc-blanks" class="ps-blanks"></div>
 
-        <h4 class="sub">Descending — write the note name below each one</h4>
+        <h4 class="sub">Descending — write the note name below each note</h4>
         <div id="ps-desc" class="notation"></div>
-        <div id="ps-desc-blanks" class="ps-blanks"></div>
 
         <h4 class="sub">Fretboard — write the note name in each circle</h4>
         <div id="ps-board" class="board"></div>
@@ -47,17 +45,11 @@ export function initPrintSheet(container) {
   const shapesEl = container.querySelector('#ps-shapes');
   const titleEl = container.querySelector('#ps-title');
   const ascEl = container.querySelector('#ps-asc');
-  const ascBlanksEl = container.querySelector('#ps-asc-blanks');
   const descEl = container.querySelector('#ps-desc');
-  const descBlanksEl = container.querySelector('#ps-desc-blanks');
   const boardEl = container.querySelector('#ps-board');
   const printBtn = container.querySelector('#ps-print');
 
   let shape = 'A';
-
-  function blanksRow(seq) {
-    return seq.map((n, i) => `<span class="ps-blank"><b>${i + 1}.</b> ______</span>`).join('');
-  }
 
   function show() {
     const key = keySel.value;
@@ -67,11 +59,9 @@ export function initPrintSheet(container) {
     titleEl.textContent = `${key} major — Shape ${shape} (CAGED) practice sheet`;
 
     renderStaffOnly(ascEl, seq);
-    ascBlanksEl.innerHTML = blanksRow(seq);
 
     const desc = [...seq].reverse();
     renderStaffOnly(descEl, desc);
-    descBlanksEl.innerHTML = blanksRow(desc);
 
     const fb = makeFretboard(boardEl, { fretCount: maxFret + 1 });
     const dots = seq.map((n) => ({
